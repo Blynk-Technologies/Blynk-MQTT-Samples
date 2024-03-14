@@ -62,7 +62,7 @@ async def task():
         if not connected:
             if ssl_ctx:
                 while not update_ntp_time():
-                    pass
+                    await asyncio.sleep(1)
             try:
                 gc.collect()
                 print(f"Connecting to MQTT broker...")

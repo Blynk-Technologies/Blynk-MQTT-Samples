@@ -1,8 +1,13 @@
+
 # Blynk MQTT client for MicroPython
 
-## 1. Install `MicroPython`
+MicroPython is a lean and efficient implementation of the Python 3 programming language that includes a subset of its standard library and is optimized to run on microcontrollers and in constrained environments. It is designed to make programming digital electronics and IoT devices as simple and accessible as possible.
 
-https://micropython.org/download
+MicroPython allows developers to swiftly construct IoT applications using its straightforward syntax and interactive development environment, making it perfect for educational use, DIY projects, and rapid prototyping. Additionally, it maintains a level of reliability that suits professional settings.
+
+Moreover, since MicroPython application code is very compact, it provides an excellent solution for OTA updates over bandwidth-constrained networks like Cellular, LoRaWAN or Satellite.
+
+---
 
 This example was verified to work with `MicroPython v1.22.2` on:
 
@@ -12,6 +17,16 @@ This example was verified to work with `MicroPython v1.22.2` on:
 - `Linux` (SBCs like `Raspberry Pi`, `Orange Pi`, etc)
 
 ¹ *insecure TCP connection only*
+
+## Prerequisites
+
+- Sign up/Log in to your [Blynk Account](https://blynk.cloud)
+- Install Blynk IoT App for iOS or Android
+- Use MQTT Sample Blueprint
+
+## 1. Install `MicroPython`
+
+https://micropython.org/download
 
 ## 2. Edit `config.py`
 
@@ -70,6 +85,7 @@ micropython main.py
 
 ## Further reading
 
+- [`Blynk MQTT API documentation`](https://docs.blynk.io/en/blynk.cloud-mqtt-api/device-mqtt-api)
 - [`asyncio` documentation](https://docs.micropython.org/en/latest/library/asyncio.html)
 - [`asyncio` tutorial](https://github.com/peterhinch/micropython-async/blob/master/v3/docs/TUTORIAL.md)
 - [`mpremote` documentation](https://docs.micropython.org/en/latest/reference/mpremote.html)
