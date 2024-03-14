@@ -1,0 +1,2 @@
+ 
+HTML5, combined with WebSockets, provides a powerful duo for building real-time, interactive web interfaces for IoT Edge and Embedded Systems. This combination enables the creation of web applications that can communicate efficiently with IoT devices in real-time, facilitating seamless user interaction with the device's data and operations. It is widely used in creating dashboards for monitoring and controlling IoT devices, offering a platform-agnostic approach that works across various devices and browsers, enhancing the user experience in IoT ecosystems.

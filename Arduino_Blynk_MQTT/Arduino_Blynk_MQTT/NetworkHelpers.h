@@ -15,7 +15,7 @@
  */
 
 #if !defined(BLYNK_MQTT_BROKER)
-  #define BLYNK_MQTT_BROKER       "blynk-qa.com"
+  #define BLYNK_MQTT_BROKER       "blynk.cloud"
 #endif
 
 #if !defined(BLYNK_MQTT_PORT)
