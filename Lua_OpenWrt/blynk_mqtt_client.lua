@@ -1,14 +1,14 @@
 #!/usr/bin/env lua
 
 --[[
-Copyright (c) 2024 Blynk Technologies Inc.
-SPDX-License-Identifier: Apache-2.0
+  SPDX-FileCopyrightText: 2024 Volodymyr Shymanskyy for Blynk Technologies Inc.
+  SPDX-License-Identifier: Apache-2.0
 
-The software is provided "as is", without any warranties or guarantees (explicit or implied).
-This includes no assurances about being fit for any specific purpose.
+  The software is provided "as is", without any warranties or guarantees (explicit or implied).
+  This includes no assurances about being fit for any specific purpose.
 
-This example uses Lua bindings to libmosquitto:
-https://flukso.github.io/lua-mosquitto/docs
+  This example uses Lua bindings to libmosquitto:
+  https://flukso.github.io/lua-mosquitto/docs
 ]]
 
 local mqtt = require("mosquitto")

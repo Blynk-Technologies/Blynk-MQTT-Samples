@@ -1,4 +1,7 @@
 /*
+ * SPDX-FileCopyrightText: 2024 Volodymyr Shymanskyy for Blynk Technologies Inc.
+ * SPDX-License-Identifier: Apache-2.0
+ *
  * NOTE: These cerificates are only used on certain board types
  *
  * 4096 bit, ISRG Root X1,            expires: Mon, 04 Jun 2035 11:04:38 GMT

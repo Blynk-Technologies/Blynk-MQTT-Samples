@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Blynk Technologies Inc.
+ * SPDX-FileCopyrightText: 2024 Volodymyr Shymanskyy for Blynk Technologies Inc.
  * SPDX-License-Identifier: Apache-2.0
  *
  * The software is provided "as is", without any warranties or guarantees (explicit or implied).
@@ -15,6 +15,11 @@ void mqtt_connected()
 {
   // Publish some data
   mqtt.publish("ds/terminal", "Device connected\n");
+}
+
+void mqtt_disconnected()
+{
+  // TODO
 }
 
 // Handle incoming datastream changes

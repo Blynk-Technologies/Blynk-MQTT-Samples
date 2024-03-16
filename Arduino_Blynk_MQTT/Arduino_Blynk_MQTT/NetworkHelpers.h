@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Blynk Technologies Inc.
+ * SPDX-FileCopyrightText: 2024 Volodymyr Shymanskyy for Blynk Technologies Inc.
  * SPDX-License-Identifier: Apache-2.0
  *
  * The software is provided "as is", without any warranties or guarantees (explicit or implied).
@@ -123,11 +123,11 @@
              lastTime += (interval))
 
 const char* BLYNK_BANNER PROGMEM = R"(
-    ___  __          __
-   / _ )/ /_ _____  / /__
-  / _  / / // / _ \/  '_/
- /____/_/\_, /_//_/_/\_\
-        /___/
+      ___  __          __
+     / _ )/ /_ _____  / /__
+    / _  / / // / _ \/  '_/
+   /____/_/\_, /_//_/_/\_\
+          /___/
 )";
 
 /*
