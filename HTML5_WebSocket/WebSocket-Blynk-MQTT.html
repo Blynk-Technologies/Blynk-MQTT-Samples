@@ -38,6 +38,7 @@
   <form id="connect_form">
       <label>Device Auth Token: <input id="auth_token" name="auth" type="text" pattern="[a-zA-Z0-9\-_]{32}" maxlength="32" required="required" placeholder="SiIhq6yO..."></label>
       <input id="connect_btn" type="submit" value="Connect"></div>
+      <button id="disconnect_btn" disabled>Disconnect</button>
   </form>
   <pre><samp id="log"/></pre>
 </body>
@@ -72,9 +73,10 @@
 
   async function onConnectClick() {
     Logger.clear()
+    connect('wss://blynk.cloud:443/mqtt');
+  }
 
-    const brokerUrl = 'wss://blynk.cloud:443/mqtt'
-
+  function connect(brokerUrl) {
     const options = {
       username: 'device',
       password: document.querySelector('#auth_token').value,
@@ -119,8 +121,17 @@
         Logger.log('Connected (secure)')
         document.querySelector('#auth_token').disabled =  true
         document.querySelector('#connect_btn').disabled =  true
+        document.getElementById('disconnect_btn').disabled = false;
       })
     })
+
+    client.on('close', () => {
+      Logger.log('Disconnected (secure)')
+      client = null;
+      document.querySelector('#auth_token').disabled = false;
+      document.querySelector('#connect_btn').disabled = false;
+      document.getElementById('disconnect_btn').disabled = true;
+    });
 
     // https://github.com/mqttjs/MQTT.js#event-message
     client.on('message', (topic, payload) => {
@@ -129,6 +140,12 @@
       if (topic == 'downlink/ds/terminal') {
         let reply = `Your command: ${payload}`
         client.publish("ds/terminal", reply, { qos })
+      } else if (topic === 'downlink/redirect') {
+        client.endAsync()
+          .then(() => connect(payload + '')); // payload + '' converts Uint8Array to string
+      } else if (topic === 'downlink/reboot') {
+        Logger.log('Rebooting in 3 seconds...')
+        setTimeout(() => location.reload(), 3000);
       }
     })
   }
@@ -148,5 +165,11 @@
       onConnectClick()
   })
 
+  document.getElementById('disconnect_btn').addEventListener('click', e => {
+    e.preventDefault();
+    if (client) {
+      client.end();
+    }
+  })
 </script>
 </html>
