@@ -16,8 +16,7 @@ BLYNK_FIRMWARE_VERSION = "0.1.0"
 mqtt = blynk_mqtt.mqtt
 
 def terminal_print(*args):
-    msg = " ".join(map(str, args)) + "\n"
-    mqtt.publish(b"ds/Terminal", msg.encode("utf-8"))
+    mqtt.publish(b"ds/Terminal", " ".join(map(str, args)) + "\n")
 
 def run_terminal_command(cmd):
     if cmd[0] == "lamp":
@@ -31,22 +30,18 @@ async def publisher_task():
     while True:
         try:
             # TODO: publish liminance
-            mqtt.publish(b"ds/Luminance", str(uptime))
+            mqtt.publish(b"ds/Luminance", 0)
         except Exception as e:
             #print("Failed to publish:", e)
             pass
 
         await asyncio.sleep_ms(1000)
 
-first_connection = True
-
 def mqtt_connected():
-    global first_connection
-    if first_connection:
+    if blynk_mqtt.connection_count == 1:
         terminal_print(blynk_mqtt.LOGO)
         terminal_print(f"{sys.platform} connected.")
         terminal_print(f"Firmware version: {BLYNK_FIRMWARE_VERSION}")
-        first_connection = False
     else:
         print("MQTT connected")
 

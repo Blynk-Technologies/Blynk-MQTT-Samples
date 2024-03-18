@@ -15,6 +15,7 @@ on_connected = _dummy
 on_disconnected = _dummy
 on_message = _dummy
 firmware_version = "0.0.1"
+connection_count = 0
 
 LOGO = r"""
       ___  __          __
@@ -31,12 +32,13 @@ def _on_message(topic, payload):
     payload = payload.decode("utf-8")
 
     if topic == "downlink/redirect":
-        mqtt.server, mqtt.port = payload.split(":")
-        mqtt.disconnect()
-        mqtt.connect() # TODO: move to a separate function
+        mqtt.server, mqtt.port = payload.split(":") # TODO: use new url format
+        mqtt.disconnect() # Trigger automatic reconnect
     elif topic == "downlink/reboot":
         print("Rebooting...")
         machine.reset()
+    elif topic == "downlink/ping":
+        pass
     else:
         on_message(topic, payload)
 
@@ -53,6 +55,31 @@ mqtt = MQTTClient(client_id="", server=config.BLYNK_MQTT_BROKER, ssl=ssl_ctx,
                   user="device", password=config.BLYNK_AUTH_TOKEN, keepalive=45)
 mqtt.set_callback(_on_message)
 
+async def connect():
+    global connection_count
+
+    mqtt.disconnect()
+    gc.collect()
+    print("Connecting to MQTT broker...")
+    mqtt.connect()
+    print("Connected to Blynk.Cloud", "[secure]" if ssl_ctx else "[insecure]")
+    mqtt.subscribe(b"downlink/#")
+
+    info = {
+        "type": config.BLYNK_TEMPLATE_ID,
+        "tmpl": config.BLYNK_TEMPLATE_ID,
+        "ver":  firmware_version,
+        "rxbuff": 1024
+    }
+    # Send info to the server
+    mqtt.publish(b"info/mcu", json.dumps(info))
+    connected = True
+    connection_count += 1
+    try:
+        on_connected()
+    except Exception as e:
+        sys.print_exception(e)
+
 async def task():
     connected = False
     while True:
@@ -62,41 +89,23 @@ async def task():
                 while not update_ntp_time():
                     await asyncio.sleep(1)
             try:
-                gc.collect()
-                print(f"Connecting to MQTT broker...")
-                mqtt.connect()
-                conn_type = "[secure]" if ssl_ctx else "[insecure]"
-                print("Connected to Blynk.Cloud", conn_type)
-                mqtt.subscribe(b"downlink/#")
-
-                info = {
-                    "type": config.BLYNK_TEMPLATE_ID,
-                    "tmpl": config.BLYNK_TEMPLATE_ID,
-                    "ver":  firmware_version,
-                    "rxbuff": 1024
-                }
-                # Send info to the server
-                mqtt.publish(b"info/mcu", json.dumps(info))
-                connected = True
-                try:
-                    on_connected()
-                except:
-                    pass
+                connect()
             except Exception as e:
                 if e.value == 4 or e.value == 5:
                     print("Invalid BLYNK_AUTH_TOKEN")
-                    return
+                    await asyncio.sleep(15*60)
                 else:
-                    print("Failed to connect:", e)
+                    sys.print_exception(e)
                     await asyncio.sleep(5)
-        try:
-            mqtt.check_msg()
-        except Exception as e:
-            connected = False
+        else:
             try:
-                on_disconnected()
-            except:
-                pass
+                mqtt.check_msg()
+            except Exception as e:
+                connected = False
+                try:
+                    on_disconnected()
+                except Exception as e:
+                    sys.print_exception(e)
 
 def print_time():
     y, m, d, H, M, S, w, j = time.localtime()

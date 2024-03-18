@@ -40,10 +40,10 @@ Run these commands on your development machine:
 ```sh
 # Install mpremote utility
 pip3 install --upgrade mpremote
-# Install umqtt library
-mpremote mip install "umqtt.simple@1.4.0"
+# Install libraries
+mpremote cp -r ./lib :
 # Copy the example files to the device
-mpremote cp *.py *.der :.
+mpremote cp *.py *.der :
 ```
 
 ## 4. Run
