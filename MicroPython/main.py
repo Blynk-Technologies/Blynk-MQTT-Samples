@@ -5,6 +5,7 @@
 # This includes no assurances about being fit for any specific purpose.
 
 import sys, io, machine, time, asyncio
+if sys.platform == "linux": sys.path.append("lib")
 import config, blynk_mqtt
 
 BLYNK_FIRMWARE_VERSION = "0.1.0"
@@ -26,7 +27,6 @@ def run_terminal_command(cmd):
         terminal_print("Unknown command:", *cmd)
 
 async def publisher_task():
-    started = time.ticks_ms()
     while True:
         try:
             # TODO: publish liminance

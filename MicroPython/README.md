@@ -73,11 +73,6 @@ Connected to Blynk.Cloud [secure]
 This will also work on Linux-based PCs or SBCs like Raspberry Pi:
 
 ```sh
-# Install libraries
-mkdir -p umqtt
-wget -O umqtt/simple.py "https://raw.githubusercontent.com/micropython/micropython-lib/master/micropython/umqtt.simple/umqtt/simple.py"
-
-# Run
 micropython main.py
 ```
 

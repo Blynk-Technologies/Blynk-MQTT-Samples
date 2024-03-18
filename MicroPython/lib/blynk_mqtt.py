@@ -73,7 +73,6 @@ async def connect():
     }
     # Send info to the server
     mqtt.publish(b"info/mcu", json.dumps(info))
-    connected = True
     connection_count += 1
     try:
         on_connected()
@@ -89,7 +88,8 @@ async def task():
                 while not update_ntp_time():
                     await asyncio.sleep(1)
             try:
-                connect()
+                await connect()
+                connected = True
             except Exception as e:
                 if e.value == 4 or e.value == 5:
                     print("Invalid BLYNK_AUTH_TOKEN")
@@ -106,6 +106,8 @@ async def task():
                     on_disconnected()
                 except Exception as e:
                     sys.print_exception(e)
+
+# Utilities
 
 def print_time():
     y, m, d, H, M, S, w, j = time.localtime()
