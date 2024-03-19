@@ -6,37 +6,39 @@
 # This includes no assurances about being fit for any specific purpose.
 
 from paho.mqtt.client import Client, CallbackAPIVersion
-import time, random
+import time
 import ssl
+import config, demo
 
-def on_connect(client, obj, flags, reason_code, properties):
-    print("Connected (secure)")
-    client.subscribe("downlink/#", qos=1)
+BLYNK_TEMPLATE_ID = "TMPL87mTr-1PZ"
+BLYNK_TEMPLATE_NAME = "Test"
+BLYNK_AUTH_TOKEN = "5ZwTI1DwnE9lGQpNZuvsFZPbsP9K9OLv"
 
-def on_message(client, obj, msg):
+mqtt = Client(CallbackAPIVersion.VERSION2)
+device = demo.Device(mqtt)
+
+def on_connect(mqtt, obj, flags, reason_code, properties):
+    print("Connected [secure]")
+    mqtt.subscribe("downlink/#", qos=0)
+    device.connected()
+
+def on_message(mqtt, obj, msg):
     payload = msg.payload.decode("utf-8")
     topic = msg.topic
     print(f"Got {topic}, value: {payload}")
+    device.process_message(topic, payload)
 
-    if topic == "downlink/ds/terminal":
-        reply = f"Your command: {payload}"
-        client.publish("ds/terminal", reply)
+def main():
+    mqtt.tls_set(tls_version=ssl.PROTOCOL_TLSv1_2)
+    mqtt.on_connect = on_connect
+    mqtt.on_message = on_message
+    mqtt.username_pw_set("device", config.BLYNK_AUTH_TOKEN)
+    mqtt.connect_async(config.BLYNK_MQTT_BROKER, 8883, 45)
+    mqtt.loop_start()
 
-def main(auth_token):
-    client = Client(CallbackAPIVersion.VERSION2)
-    client.tls_set(tls_version=ssl.PROTOCOL_TLSv1_2)
-    client.on_connect = on_connect
-    client.on_message = on_message
-    client.username_pw_set("device", auth_token)
-    client.connect_async('blynk.cloud', 8883, 45)
-    client.loop_start()
-
-    start_time = time.time()
     while True:
-        uptime = int(time.time() - start_time)
-        client.publish("ds/uptime", uptime)
+        device.update()
         time.sleep(1)
 
-if __name__ == '__main__':
-    import sys
-    main(sys.argv[1])
+if __name__ == "__main__":
+    main()

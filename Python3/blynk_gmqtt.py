@@ -8,65 +8,61 @@
 import asyncio
 import sys, time
 import signal
+import config, demo
 
 from gmqtt import Client as MQTTClient
 from gmqtt.mqtt.constants import MQTTv311, MQTTv50
 
-try:
-    import uvloop
-    asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
-except:
-    pass
-
 STOP = asyncio.Event()
+mqtt = MQTTClient(None)
+device = demo.Device(mqtt)
 
-def on_connect(client, flags, rc, properties):
-    print('Connected (secure)')
+def on_connect(mqtt, flags, rc, properties):
+    mqtt.subscribe("downlink/#", qos=0)
+    print("Connected [secure]")
+    device.connected()
 
-def on_message(client, topic, payload, qos, properties):
-    payload = payload.decode('utf-8')
-    print(f'Got {topic}, value: {payload}')
+def on_message(mqtt, topic, payload, qos, properties):
+    payload = payload.decode("utf-8")
+    print(f"Got {topic}, value: {payload}")
+    device.process_message(topic, payload)
 
-    if topic == 'downlink/ds/terminal':
-        reply = f"Your command: {payload}"
-        client.publish('ds/terminal', reply)
-
-def on_disconnect(client, packet, exc=None):
-    print('Disconnected')
+def on_disconnect(mqtt, packet, exc=None):
+    print("Disconnected")
 
 def ask_exit(*args):
     STOP.set()
 
-async def main(auth_token):
-    client = MQTTClient(None)
+async def main():
+    mqtt.on_connect = on_connect
+    mqtt.on_message = on_message
+    mqtt.on_disconnect = on_disconnect
+    mqtt.set_auth_credentials("device", config.BLYNK_AUTH_TOKEN)
 
-    client.on_connect = on_connect
-    client.on_message = on_message
-    client.on_disconnect = on_disconnect
-    client.set_auth_credentials('device', auth_token)
-
-    start_time = time.time()
-
-    await client.connect('blynk.cloud', port=8883, ssl=True, version=MQTTv50, keepalive=45)
-    client.subscribe('downlink/#', qos=0)
+    await mqtt.connect(config.BLYNK_MQTT_BROKER, port=8883, ssl=True,
+                       version=MQTTv50, keepalive=45)
 
     async def periodic():
         while True:
-            uptime = int(time.time() - start_time)
-            client.publish('ds/uptime', uptime)
+            device.update()
             await asyncio.sleep(1)
 
     loop = asyncio.get_event_loop()
     loop.create_task(periodic())
 
     await STOP.wait()
-    await client.disconnect()
+    await mqtt.disconnect()
 
 
-if __name__ == '__main__':
-    auth_token = sys.argv[1]
+if __name__ == "__main__":
+    try:
+        import uvloop
+        asyncio.set_event_loop_policy(uvloop.EventLoopPolicy())
+        print("Using libuv asyncio event loop")
+    except:
+        pass
 
     loop = asyncio.get_event_loop()
     loop.add_signal_handler(signal.SIGINT, ask_exit)
     loop.add_signal_handler(signal.SIGTERM, ask_exit)
-    loop.run_until_complete(main(auth_token))
+    loop.run_until_complete(main())
