@@ -6,7 +6,7 @@
 
 import gc, sys, time, machine, json, asyncio
 import config
-from umqtt.simple import MQTTClient
+from umqtt.simple import MQTTClient, MQTTException
 
 def _dummy(*args):
     pass
@@ -55,7 +55,7 @@ mqtt = MQTTClient(client_id="", server=config.BLYNK_MQTT_BROKER, ssl=ssl_ctx,
                   user="device", password=config.BLYNK_AUTH_TOKEN, keepalive=45)
 mqtt.set_callback(_on_message)
 
-async def connect():
+async def _mqtt_connect():
     global connection_count
 
     mqtt.disconnect()
@@ -88,10 +88,13 @@ async def task():
                 while not update_ntp_time():
                     await asyncio.sleep(1)
             try:
-                await connect()
+                await _mqtt_connect()
                 connected = True
             except Exception as e:
-                if e.value == 4 or e.value == 5:
+                if isinstance(e, OSError):
+                    print("Connection failed:", e)
+                    await asyncio.sleep(5)
+                elif isinstance(e, MQTTException) and (e.value == 4 or e.value == 5):
                     print("Invalid BLYNK_AUTH_TOKEN")
                     await asyncio.sleep(15*60)
                 else:
@@ -101,6 +104,7 @@ async def task():
             try:
                 mqtt.check_msg()
             except Exception as e:
+                #sys.print_exception(e)
                 connected = False
                 try:
                     on_disconnected()

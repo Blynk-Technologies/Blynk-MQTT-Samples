@@ -18,7 +18,7 @@ This example was verified to work with `MicroPython v1.22.2` on:
 
 ¹ *insecure TCP connection only*
 
-## Prerequisites
+## Getting Started
 
 - Sign up/Log in to your [Blynk Account](https://blynk.cloud)
 - Install Blynk IoT App for iOS or Android
