@@ -7,6 +7,7 @@
 import sys, io, machine, time, asyncio
 if sys.platform == "linux": sys.path.append("lib")
 import config, blynk_mqtt
+import demo
 
 BLYNK_FIRMWARE_VERSION = "0.1.0"
 
@@ -16,54 +17,26 @@ BLYNK_FIRMWARE_VERSION = "0.1.0"
 
 mqtt = blynk_mqtt.mqtt
 
-def terminal_print(*args):
-    mqtt.publish(b"ds/Terminal", " ".join(map(str, args)) + "\n")
-
-def run_terminal_command(cmd):
-    if cmd[0] == "lamp":
-        # TODO
-        pass
-    else:
-        terminal_print("Unknown command:", *cmd)
+device = demo.Device(mqtt)
 
 async def publisher_task():
     while True:
         try:
-            # TODO: publish liminance
-            mqtt.publish(b"ds/Luminance", 0)
-        except Exception as e:
-            #print("Failed to publish:", e)
+            device.update()
+        except:
             pass
-
         await asyncio.sleep_ms(1000)
 
 def mqtt_connected():
-    if blynk_mqtt.connection_count == 1:
-        terminal_print(blynk_mqtt.LOGO)
-        terminal_print(f"{sys.platform} connected.")
-        terminal_print(f"Firmware version: {BLYNK_FIRMWARE_VERSION}")
-    else:
-        print("MQTT connected")
-
-    # Get Brightness value from Blynk.Cloud (read DataStream value)
-    mqtt.publish("get/ds", "Brightness")
+    print("MQTT connected")
+    device.connected()
 
 def mqtt_disconnected():
     print("MQTT disconnected")
 
 def mqtt_callback(topic, payload):
     print(f"Got: {topic}, value: {payload}")
-
-    if topic == "downlink/ds/Brightness":
-        value = int(payload)
-        # TODO
-    elif topic == "downlink/ds/Terminal":
-        try:
-            run_terminal_command(payload.split(" "))
-        except Exception as e:
-            with io.StringIO() as buf:
-                sys.print_exception(e, buf)
-                terminal_print(buf.getvalue())
+    device.process_message(topic, payload)
 
 #
 # Main loop

@@ -1,4 +1,4 @@
-import socket, struct
+import socket, struct, sys
 from binascii import hexlify
 
 class MQTTException(Exception):
@@ -204,7 +204,10 @@ class MQTTClient:
             pid = pid[0] << 8 | pid[1]
             sz -= 2
         msg = self.sock.read(sz)
-        self.cb(topic, msg)
+        try:
+            self.cb(topic, msg)
+        except Exception as e:
+            sys.print_exception(e)
         if op & 6 == 2:
             pkt = bytearray(b"\x40\x02\0\0")
             struct.pack_into("!H", pkt, 2, pid)

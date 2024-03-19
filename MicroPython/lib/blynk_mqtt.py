@@ -113,10 +113,10 @@ async def task():
 
 # Utilities
 
-def print_time():
-    y, m, d, H, M, S, w, j = time.localtime()
+def time2str(t):
+    y, m, d, H, M, S, w, j = t
     a = ("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")[w]
-    print(f"Time: {a} {y}-{m:02d}-{d:02d} {H:02d}:{M:02d}:{S:02d}")
+    return f"{a} {y}-{m:02d}-{d:02d} {H:02d}:{M:02d}:{S:02d}"
 
 def update_ntp_time():
     Jan24 = 756_864_000 if (time.gmtime(0)[0] == 2000) else 1_704_067_200
@@ -128,7 +128,7 @@ def update_ntp_time():
         ntptime.timeout = 3
         ntptime.settime()
         if time.time() > Jan24:
-            print_time()
+            print("UTC Time:", time2str(time.gmtime()))
             return True
     except Exception as e:
         print("NTP failed:", e)
