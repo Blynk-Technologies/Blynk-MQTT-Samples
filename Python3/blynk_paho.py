@@ -10,10 +10,6 @@ import time
 import ssl
 import config, demo
 
-BLYNK_TEMPLATE_ID = "TMPL87mTr-1PZ"
-BLYNK_TEMPLATE_NAME = "Test"
-BLYNK_AUTH_TOKEN = "5ZwTI1DwnE9lGQpNZuvsFZPbsP9K9OLv"
-
 mqtt = Client(CallbackAPIVersion.VERSION2)
 device = demo.Device(mqtt)
 
