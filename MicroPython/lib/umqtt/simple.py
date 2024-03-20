@@ -4,6 +4,14 @@ from binascii import hexlify
 class MQTTException(Exception):
     pass
 
+def _raw(v):
+    if isinstance(v, (int, float, str)):
+        return str(v).encode("utf-8")
+    elif isinstance(v, (bytes, bytearray)):
+        return v
+    else:
+        raise ValueError("Cannot convert to bytes")
+
 class MQTTClient:
     def __init__(
         self,
@@ -117,12 +125,8 @@ class MQTTClient:
         self.sock.write(b"\xc0\0")
 
     def publish(self, topic, msg, retain=False, qos=0):
-        if isinstance(msg, (int, float, str)):
-            msg = str(msg).encode("utf-8")
-        elif isinstance(msg, (bytes, bytearray)):
-            pass
-        else:
-            raise ValueError("Wrong payload type")
+        topic = _raw(topic)
+        msg = _raw(msg)
         pkt = bytearray(b"\x30\0\0\0")
         pkt[0] |= qos << 1 | retain
         sz = 2 + len(topic) + len(msg)
@@ -159,6 +163,7 @@ class MQTTClient:
 
     def subscribe(self, topic, qos=0):
         assert self.cb is not None, "Subscribe callback is not set"
+        topic = _raw(topic)
         pkt = bytearray(b"\x82\0\0\0")
         self.pid = (self.pid % 0xFFFF) + 1
         struct.pack_into("!BH", pkt, 1, 2 + 2 + len(topic) + 1, self.pid)

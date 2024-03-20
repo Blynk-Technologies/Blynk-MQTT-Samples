@@ -32,8 +32,8 @@ def _on_message(topic, payload):
     payload = payload.decode("utf-8")
 
     if topic == "downlink/redirect":
-        mqtt.server, mqtt.port = payload.split(":") # TODO: use new url format
-        mqtt.disconnect() # Trigger automatic reconnect
+        mqtt.server, mqtt.port = payload.split(":")  # TODO: use new url format
+        mqtt.disconnect()  # Trigger automatic reconnect
     elif topic == "downlink/reboot":
         print("Rebooting...")
         machine.reset()
@@ -63,7 +63,7 @@ async def _mqtt_connect():
     print("Connecting to MQTT broker...")
     mqtt.connect()
     print("Connected to Blynk.Cloud", "[secure]" if ssl_ctx else "[insecure]")
-    mqtt.subscribe(b"downlink/#")
+    mqtt.subscribe("downlink/#")
 
     info = {
         "type": config.BLYNK_TEMPLATE_ID,
@@ -72,7 +72,7 @@ async def _mqtt_connect():
         "rxbuff": 1024
     }
     # Send info to the server
-    mqtt.publish(b"info/mcu", json.dumps(info))
+    mqtt.publish("info/mcu", json.dumps(info))
     connection_count += 1
     try:
         on_connected()
@@ -96,7 +96,7 @@ async def task():
                     await asyncio.sleep(5)
                 elif isinstance(e, MQTTException) and (e.value == 4 or e.value == 5):
                     print("Invalid BLYNK_AUTH_TOKEN")
-                    await asyncio.sleep(15*60)
+                    await asyncio.sleep(15 * 60)
                 else:
                     sys.print_exception(e)
                     await asyncio.sleep(5)
