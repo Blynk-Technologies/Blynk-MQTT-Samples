@@ -1,3 +1,9 @@
+# SPDX-FileCopyrightText: 2024 Volodymyr Shymanskyy for Blynk Technologies Inc.
+# SPDX-License-Identifier: Apache-2.0
+#
+# The software is provided "as is", without any warranties or guarantees (explicit or implied).
+# This includes no assurances about being fit for any specific purpose.
+
 import random
 
 LOGO = r"""
