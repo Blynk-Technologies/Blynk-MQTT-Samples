@@ -32,7 +32,7 @@ class Device:
             settemp_disabled = 0 if self.heating_on else 1
             self.mqtt.publish("ds/Set Temperature/prop/isDisabled", settemp_disabled)
         elif topic == "downlink/ds/Set Temperature":
-            self.target_temp = int(payload)
+            self.target_temp = float(payload)
         elif topic == "downlink/ds/Terminal":
             reply = f"Your command: {payload}"
             self.mqtt.publish("ds/Terminal", reply)
@@ -56,8 +56,8 @@ class Device:
             state = 4 # Cooling
 
         state_colors = [None, "E4F6F7", "E6F7E4", "F7EAE4", "E4EDF7"]
-        self.mqtt.publish("ds/uptime", state)
-        self.mqtt.publish("ds/uptime/prop/color", state_colors[state])
+        self.mqtt.publish("ds/Status", state)
+        self.mqtt.publish("ds/Status/prop/color", state_colors[state])
 
     def update(self):
         self._update_temperature()
