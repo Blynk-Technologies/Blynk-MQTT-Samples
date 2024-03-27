@@ -16,8 +16,8 @@ LOGO = r"""
 
 class Device:
     heating_on = False
-    target_temp = 10    # Target temperature, can be set from 10 to 30
-    current_temp = 10   # Initial current temperature
+    target_temp = 23    # Target temperature, can be set from 10 to 30
+    current_temp = 15   # Initial current temperature
 
     def __init__(self, mqtt):
         self.mqtt = mqtt
