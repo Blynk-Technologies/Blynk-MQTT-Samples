@@ -15,7 +15,7 @@ LOGO = r"""
 """
 
 class Device:
-    heating_on = False
+    power_on = False
     target_temp = 23    # Target temperature, can be set from 10 to 30
     current_temp = 15   # Initial current temperature
 
@@ -28,23 +28,42 @@ class Device:
 
         # Display Blynk logo, just for fun
         self.terminal_print(LOGO)
+        self.terminal_print("Type \"help\" for the list of available commands")
 
     def terminal_print(self, *args):
         self.mqtt.publish("ds/Terminal", " ".join(map(str, args)) + "\n")
 
     def process_message(self, topic, payload):
         if topic == "downlink/ds/Power":
-            self.heating_on = bool(int(payload))
-            settemp_disabled = 0 if self.heating_on else 1
+            self.power_on = bool(int(payload))
+            settemp_disabled = 0 if self.power_on else 1
             self.mqtt.publish("ds/Set Temperature/prop/isDisabled", settemp_disabled)
         elif topic == "downlink/ds/Set Temperature":
             self.target_temp = float(payload)
         elif topic == "downlink/ds/Terminal":
-            reply = f"Your command: {payload}"
-            self.mqtt.publish("ds/Terminal", reply)
+            cmd = list(filter(payload.split()))
+            if cmd[0] == "set":
+                target_temp = int(cmd[1])
+                self.mqtt.publish("ds/Set Temperature", target_temp)
+                terminal_print(f"Temperature set to {target_temp}")
+            elif cmd[0] == "on":
+                power_on = True
+                self.mqtt.publish("ds/Power", 1)
+                terminal_print("Turned ON")
+            elif cmd[0] == "off":
+                power_on = False
+                self.mqtt.publish("ds/Power", 0)
+                terminal_print("Turned OFF")
+            elif cmd[0] in ("help", "?"):
+                terminal_print("Available commands:")
+                terminal_print("  set N    - set target temperature")
+                terminal_print("  on       - turn on")
+                terminal_print("  off      - turn off")
+            else:
+                terminal_print(f"Unknown command: {cmd[0]}")
 
     def _update_temperature(self):
-        target = self.target_temp if self.heating_on else 10
+        target = self.target_temp if self.power_on else 10
         next_temp = self.current_temp + (target - self.current_temp) * 0.05
         next_temp = max(10, min(next_temp, 35))
         next_temp += (0.5 - random.uniform(0, 1)) * 0.3
@@ -52,7 +71,7 @@ class Device:
         self.mqtt.publish("ds/Current Temperature", self.current_temp)
 
     def _update_widget_state(self):
-        if not self.heating_on:
+        if not self.power_on:
             state = 1 # OFF
         elif abs(self.current_temp - self.target_temp) < 1.0:
             state = 2 # Idle
