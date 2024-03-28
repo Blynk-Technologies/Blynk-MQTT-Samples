@@ -26,15 +26,7 @@
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
 <body>
-  <h1>Blynk.Cloud MQTT client</h1>
-  <li>Server: <code>blynk.cloud</code></li>
-  <li>TCP Port: <code>1883</code></li>
-  <li>Secure SSL/TLS Port: <code>8883</code></li>
-  <!--li>WebSocket Ports: <code>80, 8080</code></li-->
-  <li>Secure WebSocket Port: <code>443, 9443</code> Note: path must be <b>/mqtt</b></li>
-  </ul>
-  </div>
-  <h1>Test Connection</h1>
+  <h1>MQTT Air Cooler/Heater HTML5 sample</h1>
   <form id="connect_form">
       <label>Device Auth Token: <input id="auth_token" name="auth" type="text" pattern="[a-zA-Z0-9\-_]{32}" maxlength="32" required="required" placeholder="SiIhq6yO..."></label>
       <input id="connect_btn" type="submit" value="Connect"></div>
@@ -135,17 +127,22 @@
 
     // https://github.com/mqttjs/MQTT.js#event-message
     client.on('message', (topic, payload) => {
-      Logger.log(`Got ${topic}, value: ${payload}`)
-
-      if (topic == 'downlink/ds/terminal') {
-        let reply = `Your command: ${payload}`
-        client.publish("ds/terminal", reply, { qos })
-      } else if (topic === 'downlink/redirect') {
+      if (topic === 'downlink/redirect') {
         client.endAsync()
           .then(() => connect(payload + '')); // payload + '' converts Uint8Array to string
       } else if (topic === 'downlink/reboot') {
         Logger.log('Rebooting in 3 seconds...')
         setTimeout(() => location.reload(), 3000);
+      } else if (topic === 'downlink/ping') {
+        // MQTT client library automagically sends the QOS1 response
+      } else if (topic === 'downlink/diag') {
+        Logger.log(`Server says: ${payload}`)
+      } else {
+        Logger.log(`Got ${topic}, value: ${payload}`)
+        if (topic == 'downlink/ds/Terminal') {
+          let reply = `Your command: ${payload}`
+          client.publish("ds/Terminal", reply, { qos })
+        }
       }
     })
   }
