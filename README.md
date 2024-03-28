@@ -3,7 +3,7 @@
 The sample project simulates a heater device:
 
 - The room heats up when the set temperature exceeds the current temperature.
-- The room cools down when the set temperature is lower than the current temperature or if the heater is off.
+- The room cools down when the set temperature is lower than the current temperature or the heater is off.
 - The device can also be controlled via the **Terminal** widget (type `help` for a list of commands).
 
 ## Getting Started
