@@ -17,7 +17,11 @@ This example was verified to work with these boards:
 - Raspberry `Pi Pico W` (RP2040 + CYW43439) via [Arduino-Pico Core](https://arduino-pico.readthedocs.io/en/latest/install.html)
 - Seeed `Wio Terminal` (ATSAMD51 + RTL8720DN) via [Seeed Arduino Core](https://wiki.seeedstudio.com/Wio-Terminal-Getting-Started/#software)
 
-## Arduino IDE
+## Create Blynk template based on the Blueprint
+
+Click the **`Use Blueprint`** button in [`MQTT Demo`](https://blynk.cloud/dashboard/blueprints/Library/TMPL4zGiS1A7l) blueprint.
+
+## Run the sample using Arduino IDE
 
 1. Install [Arduino IDE](https://www.arduino.cc/en/software)
 2. Install the respective Arduino Core support package for your board
@@ -25,7 +29,7 @@ This example was verified to work with these boards:
 4. In `arduino_secrets.h` tab, fill-in your **WiFi** and **Blynk device** credentials
 5. Click **Verify** and **Upload**
 
-## PlatformIO
+## Run the sample using PlatformIO
 
 The provided `platformio.ini` contains pre-configured environments for each board type:
 
