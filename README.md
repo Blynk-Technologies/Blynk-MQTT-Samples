@@ -5,8 +5,8 @@
 ### Prerequisites
 
 1. Sign up/Log in to your [**Blynk Account**](https://blynk.cloud)
-2. Install **Blynk IoT** App for [<img src="https://cdn.rawgit.com/simple-icons/simple-icons/develop/icons/googleplay.svg" width="18" height="18" /> Android](https://play.google.com/store/apps/details?id=cc.blynk) or
-[<img src="https://cdn.rawgit.com/simple-icons/simple-icons/develop/icons/apple.svg" width="18" height="18" /> iOS](https://itunes.apple.com/us/app/blynk-control-arduino-raspberry/id808760481?ls=1&mt=8)
+2. Install **Blynk IoT** App for [<img src="https://cdn.rawgit.com/simple-icons/simple-icons/develop/icons/googleplay.svg" width="18" height="18" /> Android](https://play.google.com/store/apps/details?id=cloud.blynk) or
+[<img src="https://cdn.rawgit.com/simple-icons/simple-icons/develop/icons/apple.svg" width="18" height="18" /> iOS](https://apps.apple.com/us/app/blynk-iot/id1559317868)
 3. Use [**MQTT Sample**](TODO) blueprint to automatically create the Blynk product
 
 ### Pick the sample code to run
