@@ -22,7 +22,7 @@ that works across various devices and browsers, enhancing the user experience in
 
 ## Run the example using your Browser
 
-[Open Playground](https://bit.ly/Blynk-HTML5-MQTT-Sample)
+[👉 Open Demo page 👈](https://bit.ly/Blynk-HTML5-MQTT-Sample)
 
 Insert the Auth Token of your device an click **`Connect`**
 

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+  <title>Blynk MQTT client</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/mvp.css">
+
+  <style>
+  body {
+    padding: 0 1em 0 1em;
+  }
+  form, button, input[type="submit"] {
+    padding: 0.4rem 0.8rem;
+  }
+  label {
+    display: inline;
+  }
+  #auth_token {
+    width: 50%;
+    display: inline-block;
+  }
+  </style>
+
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+</head>
+<body>
+  <h1>Blynk.Cloud MQTT client</h1>
+  <li>Server: <code>blynk.cloud</code></li>
+  <li>TCP Port: <code>1883</code></li>
+  <li>Secure SSL/TLS Port: <code>8883</code></li>
+  <!--li>WebSocket Ports: <code>80, 8080</code></li-->
+  <li>Secure WebSocket Port: <code>443, 9443</code> Note: path must be <b>/mqtt</b></li>
+  </ul>
+  </div>
+  <h1>Test Connection</h1>
+  <form id="connect_form">
+      <label>Device Auth Token: <input id="auth_token" name="auth" type="text" pattern="[a-zA-Z0-9\-_]{32}" maxlength="32" required="required" placeholder="SiIhq6yO..."></label>
+      <input id="connect_btn" type="submit" value="Connect"></div>
+      <button id="disconnect_btn" disabled>Disconnect</button>
+  </form>
+  <pre><samp id="log"/></pre>
+</body>
+<script>
+
+  /*
+   * SPDX-FileCopyrightText: 2024 Volodymyr Shymanskyy for Blynk Technologies Inc.
+   * SPDX-License-Identifier: Apache-2.0
+   *
+   * The software is provided "as is", without any warranties or guarantees (explicit or implied).
+   * This includes no assurances about being fit for any specific purpose.
+   */
+
+  let Logger = {
+    log: function() {
+      let line = Array.prototype.slice.call(arguments).map(function(argument) {
+        return typeof argument === 'string' ? argument : JSON.stringify(argument)
+      }).join(' ')
+
+      document.querySelector('#log').textContent += line + '\n'
+    },
+
+    clear: function() {
+      document.querySelector('#log').textContent = ''
+    },
+  }
+
+  let client = null
+
+  // https://github.com/mqttjs/MQTT.js#qos
+  const qos = 0
+
+  async function onConnectClick() {
+    Logger.clear()
+    connect('wss://blynk.cloud:443/mqtt');
+  }
+
+  function connect(brokerUrl) {
+    const options = {
+      username: 'device',
+      password: document.querySelector('#auth_token').value,
+      keepalive: 45,
+      clean: true,
+      connectTimeout: 5000,
+      reconnectPeriod: 1000,
+      // https://github.com/mqttjs/MQTT.js#mqttclientstreambuilder-options
+    }
+
+    Logger.log(`Connecting to ${brokerUrl}`)
+
+    if (client) {
+      client.end()
+    }
+    client = mqtt.connect(brokerUrl, options)
+
+    // https://github.com/mqttjs/MQTT.js#event-error
+    client.on('error', (err) => {
+      console.log(err)
+      if (err.message.includes("password")) {
+        Logger.log(`Invalid Auth Token`)
+        client.end()
+      } else {
+        Logger.log(err)
+      }
+      client.end()
+    })
+
+    // https://github.com/mqttjs/MQTT.js#event-reconnect
+    client.on('reconnect', () => {
+      Logger.log(`Reconnecting...`)
+    })
+
+    // https://github.com/mqttjs/MQTT.js#event-connect
+    client.on('connect', () => {
+      client.subscribe("downlink/#", { qos }, (err) => {
+        if (err) {
+          Logger.log(`Subscribe error: ${err}`)
+          return
+        }
+        Logger.log('Connected (secure)')
+        document.querySelector('#auth_token').disabled =  true
+        document.querySelector('#connect_btn').disabled =  true
+        document.getElementById('disconnect_btn').disabled = false;
+      })
+    })
+
+    client.on('close', () => {
+      Logger.log('Disconnected (secure)')
+      client = null;
+      document.querySelector('#auth_token').disabled = false;
+      document.querySelector('#connect_btn').disabled = false;
+      document.getElementById('disconnect_btn').disabled = true;
+    });
+
+    // https://github.com/mqttjs/MQTT.js#event-message
+    client.on('message', (topic, payload) => {
+      Logger.log(`Got ${topic}, value: ${payload}`)
+
+      if (topic == 'downlink/ds/terminal') {
+        let reply = `Your command: ${payload}`
+        client.publish("ds/terminal", reply, { qos })
+      } else if (topic === 'downlink/redirect') {
+        client.endAsync()
+          .then(() => connect(payload + '')); // payload + '' converts Uint8Array to string
+      } else if (topic === 'downlink/reboot') {
+        Logger.log('Rebooting in 3 seconds...')
+        setTimeout(() => location.reload(), 3000);
+      }
+    })
+  }
+
+  const startTime = new Date()
+  setInterval(() => {
+    if (client && client.connected) {
+      // publish message
+      const uptime = Math.round((new Date() - startTime) / 1000)
+      client.publish("ds/uptime", uptime.toString(), { qos })
+    }
+  }, 1000)
+
+  document.querySelector('#connect_form').addEventListener('submit', function(event) {
+      event.stopPropagation()
+      event.preventDefault()
+      onConnectClick()
+  })
+
+  document.getElementById('disconnect_btn').addEventListener('click', e => {
+    e.preventDefault();
+    if (client) {
+      client.end();
+    }
+  })
+</script>
+</html>
