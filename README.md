@@ -1,15 +1,19 @@
 # Blynk MQTT Samples
 
-## Getting Started
+The sample project simulates a heater device:
 
-### Prerequisites
+- The room heats up when the set temperature exceeds the current temperature.
+- The room cools down when the set temperature is lower than the current temperature or if the heater is off.
+- The device can also be controlled via the **Terminal** widget (type `help` for a list of commands).
+
+## Getting Started
 
 1. Sign up/Log in to your [**Blynk Account**](https://blynk.cloud)
 2. Install **Blynk IoT** App for [<img src="https://cdn.rawgit.com/simple-icons/simple-icons/develop/icons/googleplay.svg" width="18" height="18" /> Android](https://play.google.com/store/apps/details?id=cloud.blynk) or
 [<img src="https://cdn.rawgit.com/simple-icons/simple-icons/develop/icons/apple.svg" width="18" height="18" /> iOS](https://apps.apple.com/us/app/blynk-iot/id1559317868)
-3. Use [**MQTT Sample**](TODO) blueprint to automatically create the Blynk product
+3. Please **follow the instructions from [MQTT Sample blueprint](TODO)**
 
-### Pick the sample code to run
+## What's in this repository?
 
 The `MQTT Sample` blueprint is compatible with various MQTT clients, developed in different programming languages:
 
