@@ -17,9 +17,15 @@ This example was verified to work with these boards:
 - Raspberry `Pi Pico W` (RP2040 + CYW43439) via [Arduino-Pico Core](https://arduino-pico.readthedocs.io/en/latest/install.html)
 - Seeed `Wio Terminal` (ATSAMD51 + RTL8720DN) via [Seeed Arduino Core](https://wiki.seeedstudio.com/Wio-Terminal-Getting-Started/#software)
 
-## Create Blynk template based on the Blueprint
+## Prepare your Device in Blynk.Cloud
 
-Click the **`Use Blueprint`** button in [`MQTT Demo`](https://blynk.cloud/dashboard/blueprints/Library/TMPL4zGiS1A7l) blueprint.
+1. Create Blynk template based on the provided blueprint. Click the **`Use Blueprint`** button in [`MQTT Air Cooler/Heater Demo`](https://blynk.cloud/dashboard/blueprints/Library/TMPL4zGiS1A7l).
+2. In the left panel, select `Devices`
+3. Click `New Device` button
+4. Select `From Template -> MQTT Demo`, and click **`Create`**
+
+> [!NOTE]
+> Please note the device credentials that appear in the upper right corner. You'll need them in the next step.
 
 ## Run the sample using Arduino IDE
 

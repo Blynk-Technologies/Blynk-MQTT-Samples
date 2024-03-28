@@ -11,11 +11,9 @@ The sample project simulates a heater device:
 1. Sign up/Log in to your [**Blynk Account**](https://blynk.cloud)
 2. Install **Blynk IoT** App for [<img src="https://cdn.rawgit.com/simple-icons/simple-icons/develop/icons/googleplay.svg" width="18" height="18" /> Android](https://play.google.com/store/apps/details?id=cloud.blynk) or
 [<img src="https://cdn.rawgit.com/simple-icons/simple-icons/develop/icons/apple.svg" width="18" height="18" /> iOS](https://apps.apple.com/us/app/blynk-iot/id1559317868)
-3. Please **follow the instructions from [MQTT Sample blueprint](TODO)**
+3. The `MQTT Sample` blueprint is compatible with various MQTT clients, developed in different programming languages. Please **follow the instructions in the readme file** of the example that you like the most.
 
-## What's in this repository?
-
-The `MQTT Sample` blueprint is compatible with various MQTT clients, developed in different programming languages:
+### Available samples
 
 - [**Python 3**](Python3/README.md) - suitable for use on Single Board Computers (SBCs) like `Raspberry Pi` and some Industrial IoT gateways
 - [**MicroPython**](MicroPython/README.md) - a fun and easy way of creating the device firmware
