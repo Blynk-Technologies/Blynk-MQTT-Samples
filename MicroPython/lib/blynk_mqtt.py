@@ -31,14 +31,14 @@ def _on_message(topic, payload):
     topic = topic.decode("utf-8")
     payload = payload.decode("utf-8")
 
-    if topic == "downlink/redirect":
+    if topic == "downlink/redirect":    # TODO: Redirect
         mqtt.server, mqtt.port = payload.split(":")  # TODO: use new url format
         mqtt.disconnect()  # Trigger automatic reconnect
     elif topic == "downlink/reboot":
         print("Rebooting...")
         machine.reset()
     elif topic == "downlink/ping":
-        pass
+        pass  # MQTT client library automagically sends the QOS1 response
     else:
         on_message(topic, payload)
 
