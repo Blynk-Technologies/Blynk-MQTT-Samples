@@ -19,7 +19,11 @@ This example was verified to work with these boards:
 
 ## Arduino IDE
 
-TODO
+1. Install [Arduino IDE](https://www.arduino.cc/en/software)
+2. Install the respective Arduino Core support package for your board
+3. Open `Arduino_Blynk_MQTT/Arduino_Blynk_MQTT.ino` using the Arduino IDE
+4. In `arduino_secrets.h` tab, fill-in your **WiFi** and **Blynk device** credentials
+5. Click **Verify** and **Upload**
 
 ## PlatformIO
 
@@ -50,7 +54,7 @@ pio run -e esp32 -t upload -t monitor
  Build time:      Mar  3 2024 12:09:56
  Board:           esp32
 
-Connecting to structure8......... IP:192.168.1.123, RSSI:-45dBm
+Connecting to MyWiFiHotspot......... IP:192.168.1.123, RSSI:-45dBm
 Connecting to blynk.cloud:8883... OK [secure]
 ```
 
