@@ -1,4 +1,6 @@
-# Blynk MQTT Samples
+# Blynk MQTT Sample
+
+![Blynk Dashboards](https://github.com/blynkkk/blueprints/blob/main/MQTT%20Sample/Images/dashboards2.png)
 
 The sample project simulates a heater device:
 
