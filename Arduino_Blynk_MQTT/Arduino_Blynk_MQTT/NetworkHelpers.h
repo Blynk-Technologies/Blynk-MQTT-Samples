@@ -116,19 +116,110 @@
   #error "Please define the connectivity method"
 #endif
 
+/*
+ * Utilities
+ */
+
 // Helper macro for running actions periodically
 #define EVERY_N_MILLIS(interval)                \
         for (static uint32_t lastTime = 0;      \
              millis() - lastTime >= (interval); \
              lastTime += (interval))
 
-const char* BLYNK_BANNER PROGMEM = R"(
+static
+bool parseURL(String url, String& protocol, String& host, int& port, String& path)
+{
+  int index = url.indexOf("://");
+  if(index < 0) {
+    return false;
+  }
+
+  protocol = url.substring(0, index);
+  url.remove(0, (index + 3)); // remove protocol part
+
+  index = url.indexOf('/');
+  const String server = url.substring(0, index);
+  url.remove(0, index);       // remove server part
+
+  index = server.indexOf(':');
+  if(index >= 0) {
+    host = server.substring(0, index);          // hostname
+    port = server.substring(index + 1).toInt(); // port
+  } else {
+    host = server;
+    if (protocol == "http") {
+      port = 80;
+    } else if (protocol == "https") {
+      port = 443;
+    }
+  }
+
+  if (!host.length()) {
+    return false;
+  }
+
+  if (url.length()) {
+    path = url;
+  } else {
+    path = "/";
+  }
+  return true;
+}
+
+static const char* BLYNK_BANNER PROGMEM = R"(
       ___  __          __
      / _ )/ /_ _____  / /__
     / _  / / // / _ \/  '_/
    /____/_/\_, /_//_/_/\_\
           /___/
 )";
+
+static
+void systemShowDeviceInfo()
+{
+  Serial.println(BLYNK_BANNER);
+  Serial.print(" Firmware ver:    ");   Serial.println(BLYNK_FIRMWARE_VERSION);
+  Serial.print(" Build time:      ");   Serial.println(BLYNK_FIRMWARE_BUILD);
+#if defined(ARDUINO_VARIANT)
+  Serial.print(" Board:           ");   Serial.println(ARDUINO_VARIANT);
+#endif
+#if defined(WIO_TERMINAL)
+  Serial.print(" RTL8720 fw ver:  ");
+  char* version = rpc_system_version();
+  Serial.println(version);
+  erpc_free(version);
+#elif defined(USE_ARDUINO_WIFI_MODULE)
+  while (WiFi.status() == WL_NO_MODULE) {
+    Serial.println("Communication with WiFi module failed!");
+    delay(1000);
+  }
+  Serial.print(" WiFi fw ver:     ");
+  Serial.println(WiFi.firmwareVersion());
+#endif
+  Serial.println();
+}
+
+static inline
+void systemReboot() {
+  delay(50);
+#if defined(ESP32) || defined(ESP8266)
+  ESP.restart();
+#elif defined(ARDUINO_ARCH_SAMD)    || \
+      defined(ARDUINO_ARCH_SAM)     || \
+      defined(ARDUINO_ARCH_RENESAS) || \
+      defined(ARDUINO_ARCH_MBED)    || \
+      defined(ARDUINO_ARCH_NRF5)    || \
+      defined(ARDUINO_ARCH_AMEBAD)
+  NVIC_SystemReset();
+#elif defined(ARDUINO_ARCH_RP2040)
+  rp2040.reboot();
+#elif defined(PARTICLE)
+  System.reset();
+#else
+  #error "Platform not supported"
+#endif
+  while(1) {};
+}
 
 /*
  * MQTT
@@ -158,23 +249,27 @@ void mqtt_handler_wrapper(char* topic, byte* payload, unsigned length)
 #else
   const String v(payload, length);
 #endif
-  Serial.print("Got ");       Serial.print(t);
-  Serial.print(", value: ");  Serial.println(v);
 
   if (t == "downlink/redirect") {
-    // The broker requests a redirection
-    const int colon = v.indexOf(":");
-    if (colon < 0) {
-      v.toCharArray(broker_host, sizeof(broker_host));
-      // port unchanged
-    } else {
-      v.substring(0, colon).toCharArray(broker_host, sizeof(broker_host));
-      const int port = v.substring(colon+1).toInt();
+    String protocol, host, path;
+    int port = 0;
+    if (parseURL(v, protocol, host, port, path)) {
+      host.toCharArray(broker_host, sizeof(broker_host));
       if (port > 0 && port <= 0xFFFF) {
         broker_port = port;
       }
+      mqtt.disconnect();  // trigger reconnect in the main loop
+    } else {
+      Serial.println("Cannot parse URL");
     }
-    mqtt.disconnect();  // trigger reconnect in the main loop
+  } else if (t == "downlink/reboot") {
+    Serial.println("Rebooting...");
+    systemReboot();
+  } else if (t == "downlink/ping") {
+    /* MQTT client library will automatically send QOS1 response */
+  } else if (t == "downlink/diag") {
+    Serial.print("Server says: ");
+    Serial.println(v);
   } else {
     mqtt_handler(t, v);
   }
@@ -303,26 +398,3 @@ void connectWiFi()
   }
 }
 
-void printDeviceInfo()
-{
-  Serial.println(BLYNK_BANNER);
-  Serial.print(" Firmware ver:    ");   Serial.println(BLYNK_FIRMWARE_VERSION);
-  Serial.print(" Build time:      ");   Serial.println(BLYNK_FIRMWARE_BUILD);
-#if defined(ARDUINO_VARIANT)
-  Serial.print(" Board:           ");   Serial.println(ARDUINO_VARIANT);
-#endif
-#if defined(WIO_TERMINAL)
-  Serial.print(" RTL8720 fw ver:  ");
-  char* version = rpc_system_version();
-  Serial.println(version);
-  erpc_free(version);
-#elif defined(USE_ARDUINO_WIFI_MODULE)
-  while (WiFi.status() == WL_NO_MODULE) {
-    Serial.println("Communication with WiFi module failed!");
-    delay(1000);
-  }
-  Serial.print(" WiFi fw ver:     ");
-  Serial.println(WiFi.firmwareVersion());
-#endif
-  Serial.println();
-}
