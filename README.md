@@ -1,4 +1,4 @@
-# Blynk MQTT Sample
+# Blynk MQTT Samples
 
 ![Blynk Dashboards](https://github.com/blynkkk/blueprints/blob/main/MQTT%20Sample/Images/dashboards2.png)
 
