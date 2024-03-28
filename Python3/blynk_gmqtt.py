@@ -12,6 +12,7 @@ import config, demo
 
 from gmqtt import Client as MQTTClient
 from gmqtt.mqtt.constants import MQTTv311, MQTTv50
+from gmqtt.mqtt.handler import MQTTConnectError
 
 STOP = asyncio.Event()
 mqtt = MQTTClient(None)
@@ -25,6 +26,7 @@ def on_connect(mqtt, flags, rc, properties):
 def on_message(mqtt, topic, payload, qos, properties):
     payload = payload.decode("utf-8")
     print(f"Got {topic}, value: {payload}")
+    # TODO: Redirect
     device.process_message(topic, payload)
 
 def on_disconnect(mqtt, packet, exc=None):
@@ -39,16 +41,21 @@ async def main():
     mqtt.on_disconnect = on_disconnect
     mqtt.set_auth_credentials("device", config.BLYNK_AUTH_TOKEN)
 
-    await mqtt.connect(config.BLYNK_MQTT_BROKER, port=8883, ssl=True,
-                       version=MQTTv50, keepalive=45)
+    try:
+        await mqtt.connect(config.BLYNK_MQTT_BROKER, port=8883, ssl=True,
+                           version=MQTTv50, keepalive=45)
+    except MQTTConnectError as e:
+        if e.args[0] in (4, 5):
+            print("Invalid BLYNK_AUTH_TOKEN")
+            return
+        raise e
 
     async def periodic():
         while True:
             device.update()
             await asyncio.sleep(1)
 
-    loop = asyncio.get_event_loop()
-    loop.create_task(periodic())
+    asyncio.create_task(periodic())
 
     await STOP.wait()
     await mqtt.disconnect()

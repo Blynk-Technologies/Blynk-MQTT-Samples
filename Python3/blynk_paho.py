@@ -14,14 +14,21 @@ mqtt = Client(CallbackAPIVersion.VERSION2)
 device = demo.Device(mqtt)
 
 def on_connect(mqtt, obj, flags, reason_code, properties):
-    print("Connected [secure]")
-    mqtt.subscribe("downlink/#", qos=0)
-    device.connected()
+    if reason_code == 0:
+        print("Connected [secure]")
+        mqtt.subscribe("downlink/#", qos=0)
+        device.connected()
+    elif reason_code == "Bad user name or password":
+        print("Invalid BLYNK_AUTH_TOKEN")
+        mqtt.disconnect()
+    else:
+        raise Exception(f"MQTT connection error: {reason_code}")
 
 def on_message(mqtt, obj, msg):
     payload = msg.payload.decode("utf-8")
     topic = msg.topic
     print(f"Got {topic}, value: {payload}")
+    # TODO: Redirect
     device.process_message(topic, payload)
 
 def main():
