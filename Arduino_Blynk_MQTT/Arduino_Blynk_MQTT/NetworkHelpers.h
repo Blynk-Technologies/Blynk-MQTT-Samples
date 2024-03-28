@@ -266,7 +266,7 @@ void mqtt_handler_wrapper(char* topic, byte* payload, unsigned length)
     Serial.println("Rebooting...");
     systemReboot();
   } else if (t == "downlink/ping") {
-    /* MQTT client library will automatically send QOS1 response */
+    /* MQTT client library will automagically send QOS1 response */
   } else if (t == "downlink/diag") {
     Serial.print("Server says: ");
     Serial.println(v);
