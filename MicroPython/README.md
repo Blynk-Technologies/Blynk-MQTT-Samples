@@ -1,11 +1,18 @@
 
 # Blynk MQTT client for MicroPython
 
-MicroPython is a lean and efficient implementation of the Python 3 programming language that includes a subset of its standard library and is optimized to run on microcontrollers and in constrained environments. It is designed to make programming digital electronics and IoT devices as simple and accessible as possible.
+MicroPython is a lean and efficient implementation of the Python 3 programming language
+that includes a subset of its standard library and is optimized to run on microcontrollers
+and in constrained environments. It is designed to make programming digital electronics and
+IoT devices as simple and accessible as possible.
 
-MicroPython allows developers to swiftly construct IoT applications using its straightforward syntax and interactive development environment, making it perfect for educational use, DIY projects, and rapid prototyping. Additionally, it maintains a level of reliability that suits professional settings.
+MicroPython allows developers to swiftly construct IoT applications using its straightforward
+syntax and interactive development environment, making it perfect for educational use,
+DIY projects, and rapid prototyping. Additionally, it maintains a level of reliability that
+suits professional settings.
 
-Moreover, since MicroPython application code is very compact, it provides an excellent solution for OTA updates over bandwidth-constrained networks like Cellular, LoRaWAN or Satellite.
+Moreover, since MicroPython application code is very compact, it provides an excellent solution
+for OTA updates over bandwidth-constrained networks like `Cellular`, `LoRaWAN` or `Satellite`.
 
 ---
 
@@ -18,11 +25,15 @@ This example was verified to work with `MicroPython v1.22.2` on:
 
 ¹ *insecure TCP connection only*
 
-## Getting Started
+## Prepare your Device in Blynk.Cloud
 
-- Sign up/Log in to your [Blynk Account](https://blynk.cloud)
-- Install Blynk IoT App for iOS or Android
-- Use MQTT Sample Blueprint
+1. Create Blynk template based on the provided blueprint. Click the **`Use Blueprint`** button in [`MQTT Air Cooler/Heater Demo`](https://blynk.cloud/dashboard/blueprints/Library/TMPL4zGiS1A7l).
+2. In the left panel, select `Devices`
+3. Click `New Device` button
+4. Select `From Template -> MQTT Demo`, and click **`Create`**
+
+> [!NOTE]
+> Please note the device credentials that appear in the upper right corner. You'll need them in the next step.
 
 ## 1. Install `MicroPython`
 
@@ -80,9 +91,11 @@ micropython main.py
 
 ## Further reading
 
-- [`Blynk MQTT API documentation`](https://docs.blynk.io/en/blynk.cloud-mqtt-api/device-mqtt-api)
+- [Blynk MQTT API documentation](https://docs.blynk.io/en/blynk.cloud-mqtt-api/device-mqtt-api)
 - [`asyncio` documentation](https://docs.micropython.org/en/latest/library/asyncio.html)
 - [`asyncio` tutorial](https://github.com/peterhinch/micropython-async/blob/master/v3/docs/TUTORIAL.md)
 - [`mpremote` documentation](https://docs.micropython.org/en/latest/reference/mpremote.html)
 - Alternative MQTT libraries like [mqtt_as](https://github.com/peterhinch/micropython-mqtt/tree/master/mqtt_as)
+- [Blynk Troubleshooting guide](https://docs.blynk.io/en/troubleshooting/general-issues)
+- [Blynk Documentation](https://docs.blynk.io/en)
 

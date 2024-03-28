@@ -1,4 +1,4 @@
- 
+
 # Blynk MQTT client for Python 3
 
 Python 3, with its extensive library ecosystem and ease of use, is a popular choice for developing
@@ -9,6 +9,8 @@ and interfacing with hardware components.
 
 Its versatility makes it suitable for a wide range of IoT applications,
 from simple sensor data collection to complex data processing and IoT gateway services.
+
+---
 
 ## Prepare your Device in Blynk.Cloud
 
@@ -37,3 +39,12 @@ python3 blynk_paho.py
 pip3 install --upgrade gmqtt uvloop
 python3 blynk_gmqtt.py
 ```
+
+---
+
+## Further reading
+
+- [Blynk MQTT API documentation](https://docs.blynk.io/en/blynk.cloud-mqtt-api/device-mqtt-api)
+- [Blynk Troubleshooting guide](https://docs.blynk.io/en/troubleshooting/general-issues)
+- [Blynk Documentation](https://docs.blynk.io/en)
+

@@ -1,9 +1,15 @@
 
 # Blynk MQTT client for Arduino
 
-Arduino Framework, often used in conjunction with PlatformIO, is a popular platform for developing IoT and embedded projects due to its simplicity and open-source nature. Arduino provides an accessible introduction to hardware programming with a simplified IDE and a vast library ecosystem for various sensors and actuators.
+Arduino Framework, often used in conjunction with PlatformIO, is a popular platform
+for developing IoT and embedded projects due to its simplicity and open-source nature.
+Arduino provides an accessible introduction to hardware programming with a simplified IDE
+and a vast library ecosystem for various sensors and actuators.
 
-PlatformIO extends Arduino's capabilities by offering an advanced, cross-platform IDE that supports multiple boards and frameworks, improving code management, and facilitating complex deployments. This combination is particularly suited for hobbyists, educators, and professionals prototyping IoT devices and embedded systems.
+PlatformIO extends Arduino's capabilities by offering an advanced, cross-platform IDE
+that supports multiple boards and frameworks, improving code management, and facilitating
+complex deployments. This combination is particularly suited for hobbyists, educators,
+and professionals prototyping IoT devices and embedded systems.
 
 ---
 
@@ -32,7 +38,7 @@ This example was verified to work with these boards:
 1. Install [Arduino IDE](https://www.arduino.cc/en/software)
 2. Install the respective Arduino Core support package for your board
 3. Open `Arduino_Blynk_MQTT/Arduino_Blynk_MQTT.ino` using the Arduino IDE
-4. In `arduino_secrets.h` tab, fill-in your **WiFi** and **Blynk device** credentials
+4. In `arduino_secrets.h` tab, fill-in your **WiFi** and [**Blynk device** credentials](https://bit.ly/BlynkSimpleAuth)
 5. Click **Verify** and **Upload**
 
 ## Run the sample using PlatformIO
@@ -81,3 +87,12 @@ Connecting to blynk.cloud:8883... OK [secure]
 
 [update-fw]: https://support.arduino.cc/hc/en-us/articles/360013896579-Use-the-Firmware-Updater-in-Arduino-IDE
 [root-ssl]: https://support.arduino.cc/hc/en-us/articles/360016119219-Upload-SSL-root-certificates
+
+---
+
+## Further reading
+
+- [Blynk MQTT API documentation](https://docs.blynk.io/en/blynk.cloud-mqtt-api/device-mqtt-api)
+- [Blynk Troubleshooting guide](https://docs.blynk.io/en/troubleshooting/general-issues)
+- [Blynk Documentation](https://docs.blynk.io/en)
+
