@@ -17,10 +17,6 @@ This example was verified to work with these boards:
 - Raspberry `Pi Pico W` (RP2040 + CYW43439) via [Arduino-Pico Core](https://arduino-pico.readthedocs.io/en/latest/install.html)
 - Seeed `Wio Terminal` (ATSAMD51 + RTL8720DN) via [Seeed Arduino Core](https://wiki.seeedstudio.com/Wio-Terminal-Getting-Started/#software)
 
-# Getting Started
-
-Before proceeding, it's essential to ensure that all necessary preparations have been completed as outlined on the [prerequisites page](../README.md)
-
 ## Arduino IDE
 
 1. Install [Arduino IDE](https://www.arduino.cc/en/software)
