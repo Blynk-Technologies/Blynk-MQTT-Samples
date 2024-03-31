@@ -9,7 +9,13 @@
 
   <style>
   body {
-    padding: 0 1em 0 1em;
+    padding: 0 2em 0 2em;
+  }
+  h1 {
+    font-size: 1.5em;
+  }
+  input {
+    margin-bottom: 0;
   }
   form, button, input[type="submit"] {
     padding: 0.4rem 0.8rem;
@@ -18,19 +24,28 @@
     display: inline;
   }
   #auth_token {
-    width: 50%;
+    width: 60%;
     display: inline-block;
+  }
+  #connect_btn {
+    display: inline;
+  }
+  .half-width {
+    display: inline-block;
+    width: 48%;
   }
   </style>
 
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
 <body>
-  <h1>MQTT Air Cooler/Heater HTML5 sample</h1>
+  <h1> 🌞 MQTT Air Cooler/Heater HTML5 sample</h1>
   <form id="connect_form">
-      <label>Device Auth Token: <input id="auth_token" name="auth" type="text" pattern="[a-zA-Z0-9\-_]{32}" maxlength="32" required="required" placeholder="SiIhq6yO..."></label>
+      <label>Device Auth Token:
+        <input id="auth_token" name="auth" type="text" pattern="[a-zA-Z0-9\-_]{32}" maxlength="32" required="required" placeholder="SiIhq6yO...">
+      </label>
       <input id="connect_btn" type="submit" value="Connect"></div>
-      <button id="disconnect_btn" disabled>Disconnect</button>
+      <button id="disconnect_btn">Disconnect</button>
   </form>
   <pre><samp id="log"/></pre>
 </body>
@@ -65,7 +80,7 @@
 
   async function onConnectClick() {
     Logger.clear()
-    connect('wss://blynk.cloud:443/mqtt');
+    connect('wss://blynk.cloud:443/mqtt')
   }
 
   function connect(brokerUrl) {
@@ -89,8 +104,8 @@
     // https://github.com/mqttjs/MQTT.js#event-error
     client.on('error', (err) => {
       console.log(err)
-      if (err.message.includes("password")) {
-        Logger.log(`Invalid Auth Token`)
+      if (err.message.includes('password')) {
+        Logger.log('Invalid Auth Token')
         client.end()
       } else {
         Logger.log(err)
@@ -105,68 +120,78 @@
 
     // https://github.com/mqttjs/MQTT.js#event-connect
     client.on('connect', () => {
-      client.subscribe("downlink/#", { qos }, (err) => {
+      client.subscribe('downlink/#', { qos }, (err) => {
         if (err) {
           Logger.log(`Subscribe error: ${err}`)
           return
         }
         Logger.log('Connected (secure)')
-        document.querySelector('#auth_token').disabled =  true
-        document.querySelector('#connect_btn').disabled =  true
-        document.getElementById('disconnect_btn').disabled = false;
+        document.querySelector('#auth_token').disabled = true
+        document.querySelector('#connect_btn').style.display = 'none'
+        document.querySelector('#disconnect_btn').style.display = 'inline-block'
       })
     })
 
     client.on('close', () => {
-      Logger.log('Disconnected (secure)')
-      client = null;
-      document.querySelector('#auth_token').disabled = false;
-      document.querySelector('#connect_btn').disabled = false;
-      document.getElementById('disconnect_btn').disabled = true;
-    });
+      Logger.log('Disconnected')
+      client = null
+      document.querySelector('#auth_token').disabled = false
+      document.querySelector('#connect_btn').style.display = 'inline-block'
+      document.querySelector('#disconnect_btn').style.display = 'none'
+    })
 
     // https://github.com/mqttjs/MQTT.js#event-message
     client.on('message', (topic, payload) => {
+      payload += '' // Convert Uint8Array to string
       if (topic === 'downlink/redirect') {
-        client.endAsync()
-          .then(() => connect(payload + '')); // payload + '' converts Uint8Array to string
+        Logger.log('Redirecting...')
+        client.endAsync().then(() => connect(payload))
       } else if (topic === 'downlink/reboot') {
         Logger.log('Rebooting in 3 seconds...')
-        setTimeout(() => location.reload(), 3000);
+        setTimeout(() => location.reload(), 3000)
       } else if (topic === 'downlink/ping') {
         // MQTT client library automagically sends the QOS1 response
       } else if (topic === 'downlink/diag') {
         Logger.log(`Server says: ${payload}`)
       } else {
-        Logger.log(`Got ${topic}, value: ${payload}`)
-        if (topic == 'downlink/ds/Terminal') {
-          let reply = `Your command: ${payload}`
-          client.publish("ds/Terminal", reply, { qos })
-        }
+        handleMessage(topic, payload)
       }
     })
   }
 
-  const startTime = new Date()
+  document.querySelector('#disconnect_btn').style.display = 'none'
+
+  document.querySelector('#connect_form').addEventListener('submit', e => {
+      e.stopPropagation()
+      e.preventDefault()
+      onConnectClick()
+  })
+
+  document.querySelector('#disconnect_btn').addEventListener('click', e => {
+    e.preventDefault()
+    if (client) {
+      client.end()
+    }
+  })
+
+  /*
+   * Demo application logic
+   */
+
+  function handleMessage(topic, payload) {
+    Logger.log(`Got ${topic}, value: ${payload}`)
+    if (topic == 'downlink/ds/Terminal') {
+      let reply = `Your command: ${payload}`
+      client.publish("ds/Terminal", reply, { qos })
+    }
+  }
+
   setInterval(() => {
     if (client && client.connected) {
       // publish message
-      const uptime = Math.round((new Date() - startTime) / 1000)
       client.publish("ds/uptime", uptime.toString(), { qos })
     }
   }, 1000)
 
-  document.querySelector('#connect_form').addEventListener('submit', function(event) {
-      event.stopPropagation()
-      event.preventDefault()
-      onConnectClick()
-  })
-
-  document.getElementById('disconnect_btn').addEventListener('click', e => {
-    e.preventDefault();
-    if (client) {
-      client.end();
-    }
-  })
 </script>
 </html>
