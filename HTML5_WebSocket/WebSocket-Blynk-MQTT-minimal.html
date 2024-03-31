@@ -9,7 +9,10 @@
 
   <style>
   body {
-    padding: 0 1em 0 1em;
+    padding: 0 2em 0 2em;
+  }
+  input {
+    margin-bottom: 0;
   }
   form, button, input[type="submit"] {
     padding: 0.4rem 0.8rem;
@@ -18,15 +21,22 @@
     display: inline;
   }
   #auth_token {
-    width: 50%;
+    width: 60%;
     display: inline-block;
+  }
+  #connect_btn {
+    display: inline;
+  }
+  .half-width {
+    display: inline-block;
+    width: 48%;
   }
   </style>
 
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
 <body>
-  <h1>Blynk.Cloud MQTT client</h1>
+  <h1>☁️ Blynk.Cloud MQTT Broker</h1>
   <li>Server: <code>blynk.cloud</code></li>
   <li>TCP Port: <code>1883</code></li>
   <li>Secure SSL/TLS Port: <code>8883</code></li>
@@ -34,11 +44,22 @@
   <li>Secure WebSocket Port: <code>443, 9443</code> Note: path must be <b>/mqtt</b></li>
   </ul>
   </div>
-  <h1>Test Connection</h1>
+  <h1>🚀 Test Connection</h1>
   <form id="connect_form">
-      <label>Device Auth Token: <input id="auth_token" name="auth" type="text" pattern="[a-zA-Z0-9\-_]{32}" maxlength="32" required="required" placeholder="SiIhq6yO..."></label>
+      <label>Device Auth Token:
+        <input id="auth_token" name="auth" type="text" pattern="[a-zA-Z0-9\-_]{32}" maxlength="32" required="required" placeholder="SiIhq6yO...">
+      </label>
       <input id="connect_btn" type="submit" value="Connect"></div>
-      <button id="disconnect_btn" disabled>Disconnect</button>
+      <button id="disconnect_btn">Disconnect</button>
+  </form>
+  <form id="publish_form">
+      <label class="half-width">Topic:
+        <input id="pub_topic" name="topic" type="text" required="required">
+      </label>
+      <label class="half-width">Payload:
+        <input id="pub_payload" name="payload" type="text" required="required">
+      </label>
+      <input id="publish_btn" type="submit" value="Publish"></div>
   </form>
   <pre><samp id="log"/></pre>
 </body>
@@ -73,7 +94,24 @@
 
   async function onConnectClick() {
     Logger.clear()
-    connect('wss://blynk.cloud:443/mqtt');
+    connect('wss://blynk.cloud:443/mqtt')
+  }
+
+  async function onPublishClick() {
+    let topic = document.querySelector('#pub_topic').value
+    let payload = document.querySelector('#pub_payload').value
+
+    pub_btn = document.querySelector('#publish_btn')
+    pub_btn.disabled = true
+
+    client.publish(topic, payload, { qos }, (err) => {
+      setTimeout(() => { pub_btn.disabled = false }, 200)
+      if (err) {
+        Logger.log(`Publish error: ${err}`)
+        return
+      }
+      Logger.log(`Published ${payload} to ${topic}`)
+    })
   }
 
   function connect(brokerUrl) {
@@ -97,8 +135,8 @@
     // https://github.com/mqttjs/MQTT.js#event-error
     client.on('error', (err) => {
       console.log(err)
-      if (err.message.includes("password")) {
-        Logger.log(`Invalid Auth Token`)
+      if (err.message.includes('password')) {
+        Logger.log('Invalid Auth Token')
         client.end()
       } else {
         Logger.log(err)
@@ -113,34 +151,37 @@
 
     // https://github.com/mqttjs/MQTT.js#event-connect
     client.on('connect', () => {
-      client.subscribe("downlink/#", { qos }, (err) => {
+      client.subscribe('downlink/#', { qos }, (err) => {
         if (err) {
           Logger.log(`Subscribe error: ${err}`)
           return
         }
         Logger.log('Connected (secure)')
-        document.querySelector('#auth_token').disabled =  true
-        document.querySelector('#connect_btn').disabled =  true
-        document.getElementById('disconnect_btn').disabled = false;
+        document.querySelector('#auth_token').disabled = true
+        document.querySelector('#connect_btn').style.display = 'none'
+        document.querySelector('#disconnect_btn').style.display = 'inline-block'
+        document.querySelector('#publish_form').style.display = 'block'
       })
     })
 
     client.on('close', () => {
-      Logger.log('Disconnected (secure)')
-      client = null;
-      document.querySelector('#auth_token').disabled = false;
-      document.querySelector('#connect_btn').disabled = false;
-      document.getElementById('disconnect_btn').disabled = true;
-    });
+      Logger.log('Disconnected')
+      client = null
+      document.querySelector('#auth_token').disabled = false
+      document.querySelector('#connect_btn').style.display = 'inline-block'
+      document.querySelector('#disconnect_btn').style.display = 'none'
+      document.querySelector('#publish_form').style.display = 'none'
+    })
 
     // https://github.com/mqttjs/MQTT.js#event-message
     client.on('message', (topic, payload) => {
+      payload += '' // Convert Uint8Array to string
       if (topic === 'downlink/redirect') {
-        client.endAsync()
-          .then(() => connect(payload + '')); // payload + '' converts Uint8Array to string
+        Logger.log('Redirecting...')
+        client.endAsync().then(() => connect(payload))
       } else if (topic === 'downlink/reboot') {
         Logger.log('Rebooting in 3 seconds...')
-        setTimeout(() => location.reload(), 3000);
+        setTimeout(() => location.reload(), 3000)
       } else if (topic === 'downlink/ping') {
         // MQTT client library automagically sends the QOS1 response
       } else if (topic === 'downlink/diag') {
@@ -151,26 +192,26 @@
     })
   }
 
-  const startTime = new Date()
-  setInterval(() => {
-    if (client && client.connected) {
-      // publish message
-      const uptime = Math.round((new Date() - startTime) / 1000)
-      client.publish("ds/uptime", uptime.toString(), { qos })
-    }
-  }, 1000)
+  document.querySelector('#disconnect_btn').style.display = 'none'
+  document.querySelector('#publish_form').style.display = 'none'
 
-  document.querySelector('#connect_form').addEventListener('submit', function(event) {
-      event.stopPropagation()
-      event.preventDefault()
+  document.querySelector('#connect_form').addEventListener('submit', e => {
+      e.stopPropagation()
+      e.preventDefault()
       onConnectClick()
   })
 
-  document.getElementById('disconnect_btn').addEventListener('click', e => {
-    e.preventDefault();
+  document.querySelector('#disconnect_btn').addEventListener('click', e => {
+    e.preventDefault()
     if (client) {
-      client.end();
+      client.end()
     }
+  })
+
+  document.querySelector('#publish_form').addEventListener('submit', e => {
+      e.stopPropagation()
+      e.preventDefault()
+      onPublishClick()
   })
 </script>
 </html>
