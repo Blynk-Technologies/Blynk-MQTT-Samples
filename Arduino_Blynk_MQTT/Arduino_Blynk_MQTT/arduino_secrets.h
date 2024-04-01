@@ -3,7 +3,9 @@
 #define WIFI_SSID                 "WiFi_SSID"
 #define WIFI_PASS                 "WiFi_Password"
 
-/* Fill in information from Blynk Device Info here. */
+/* Fill in information from Blynk Device Info here.
+   Read More: https://bit.ly/BlynkSimpleAuth
+*/
 #define BLYNK_TEMPLATE_ID         "TMPxxxxxx"
 #define BLYNK_TEMPLATE_NAME       "Device"
 #define BLYNK_AUTH_TOKEN          "YourAuthToken"
