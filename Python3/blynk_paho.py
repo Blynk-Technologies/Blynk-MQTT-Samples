@@ -27,9 +27,20 @@ def on_connect(mqtt, obj, flags, reason_code, properties):
 def on_message(mqtt, obj, msg):
     payload = msg.payload.decode("utf-8")
     topic = msg.topic
-    print(f"Got {topic}, value: {payload}")
-    # TODO: Redirect
-    device.process_message(topic, payload)
+    if topic == "downlink/redirect":
+        print("Redirecting...")
+        pass
+    elif topic == "downlink/reboot":
+        print("Reboot command received!")
+        pass
+    elif topic == "downlink/ping":
+        # MQTT client library automagically sends the QOS1 response
+        pass
+    elif topic == "downlink/diag":
+        print("Server says:", payload)
+    else:
+        print(f"Got {topic}, value: {payload}")
+        device.process_message(topic, payload)
 
 def main():
     mqtt.tls_set(tls_version=ssl.PROTOCOL_TLSv1_2)

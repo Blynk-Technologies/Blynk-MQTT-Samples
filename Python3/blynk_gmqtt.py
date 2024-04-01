@@ -25,9 +25,20 @@ def on_connect(mqtt, flags, rc, properties):
 
 def on_message(mqtt, topic, payload, qos, properties):
     payload = payload.decode("utf-8")
-    print(f"Got {topic}, value: {payload}")
-    # TODO: Redirect
-    device.process_message(topic, payload)
+    if topic == "downlink/redirect":
+        print("Redirecting...")
+        pass
+    elif topic == "downlink/reboot":
+        print("Reboot command received!")
+        pass
+    elif topic == "downlink/ping":
+        # MQTT client library automagically sends the QOS1 response
+        pass
+    elif topic == "downlink/diag":
+        print("Server says:", payload)
+    else:
+        print(f"Got {topic}, value: {payload}")
+        device.process_message(topic, payload)
 
 def on_disconnect(mqtt, packet, exc=None):
     print("Disconnected")
