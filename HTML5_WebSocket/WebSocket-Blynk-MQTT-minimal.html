@@ -78,8 +78,8 @@
 
   let Logger = {
     log: function() {
-      let line = Array.prototype.slice.call(arguments).map(function(argument) {
-        return typeof argument === 'string' ? argument : JSON.stringify(argument)
+      let line = Array.prototype.slice.call(arguments).map(function(arg) {
+        return typeof arg === 'string' ? arg : JSON.stringify(arg)
       }).join(' ')
 
       document.querySelector('#log').textContent += line + '\n'
@@ -95,8 +95,17 @@
   // https://github.com/mqttjs/MQTT.js#qos
   const qos = 0
 
+  let LOGO = `
+      ___  __          __
+     / _ )/ /_ _____  / /__
+    / _  / / // / _ \\/  '_/
+   /____/_/\\_, /_//_/_/\\_\\
+          /___/
+`
+
   async function onConnectClick() {
     Logger.clear()
+    Logger.log(LOGO)
     connect('wss://blynk.cloud:443/mqtt')
   }
 
@@ -159,7 +168,7 @@
           Logger.log(`Subscribe error: ${err}`)
           return
         }
-        Logger.log('Connected (secure)')
+        Logger.log('Connected [secure]')
         document.querySelector('#auth_token').disabled = true
         document.querySelector('#connect_btn').style.display = 'none'
         document.querySelector('#disconnect_btn').style.display = 'inline-block'
@@ -197,6 +206,7 @@
 
   document.querySelector('#disconnect_btn').style.display = 'none'
   document.querySelector('#publish_form').style.display = 'none'
+  Logger.log(LOGO)
 
   document.querySelector('#connect_form').addEventListener('submit', e => {
       e.stopPropagation()
