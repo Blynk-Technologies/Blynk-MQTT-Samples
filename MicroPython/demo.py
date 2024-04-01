@@ -41,26 +41,26 @@ class Device:
         elif topic == "downlink/ds/Set Temperature":
             self.target_temp = float(payload)
         elif topic == "downlink/ds/Terminal":
-            cmd = list(filter(payload.split()))
+            cmd = list(filter(len, payload.split()))
             if cmd[0] == "set":
-                target_temp = int(cmd[1])
-                self.mqtt.publish("ds/Set Temperature", target_temp)
-                terminal_print(f"Temperature set to {target_temp}")
+                self.target_temp = int(cmd[1])
+                self.mqtt.publish("ds/Set Temperature", self.target_temp)
+                self.terminal_print(f"Temperature set to {self.target_temp}")
             elif cmd[0] == "on":
-                power_on = True
+                self.power_on = True
                 self.mqtt.publish("ds/Power", 1)
-                terminal_print("Turned ON")
+                self.terminal_print("Turned ON")
             elif cmd[0] == "off":
-                power_on = False
+                self.power_on = False
                 self.mqtt.publish("ds/Power", 0)
-                terminal_print("Turned OFF")
+                self.terminal_print("Turned OFF")
             elif cmd[0] in ("help", "?"):
-                terminal_print("Available commands:")
-                terminal_print("  set N    - set target temperature")
-                terminal_print("  on       - turn on")
-                terminal_print("  off      - turn off")
+                self.terminal_print("Available commands:")
+                self.terminal_print("  set N    - set target temperature")
+                self.terminal_print("  on       - turn on")
+                self.terminal_print("  off      - turn off")
             else:
-                terminal_print(f"Unknown command: {cmd[0]}")
+                self.terminal_print(f"Unknown command: {cmd[0]}")
 
     def _update_temperature(self):
         target = self.target_temp if self.power_on else 10
