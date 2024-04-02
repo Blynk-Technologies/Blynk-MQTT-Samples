@@ -29,12 +29,15 @@ print(LOGO)
 
 def _parse_url(url):
     try:
-        scheme, _, netloc, path = url.split("/", 3)
+        scheme, url = url.split("://", 1)
     except ValueError:
-        scheme, _, netloc = url.split("/", 2)
-        path = ""
+        scheme = None
     try:
-        hostname, port = netloc.split(":", 2)
+        netloc, path = url.split("/", 1)
+    except ValueError:
+        netloc, path = url, ""
+    try:
+        hostname, port = netloc.split(":", 1)
     except:
         hostname = netloc
     return scheme, hostname, int(port), path
