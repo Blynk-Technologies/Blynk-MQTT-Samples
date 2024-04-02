@@ -5,14 +5,15 @@
 # The software is provided "as is", without any warranties or guarantees (explicit or implied).
 # This includes no assurances about being fit for any specific purpose.
 
+import sys
 import asyncio
-import sys, time
 import signal
 import config, demo
 
 from gmqtt import Client as MQTTClient
 from gmqtt.mqtt.constants import MQTTv311, MQTTv50
 from gmqtt.mqtt.handler import MQTTConnectError
+from urllib.parse import urlparse
 
 STOP = asyncio.Event()
 mqtt = MQTTClient(None)
@@ -26,14 +27,13 @@ def on_connect(mqtt, flags, rc, properties):
 def on_message(mqtt, topic, payload, qos, properties):
     payload = payload.decode("utf-8")
     if topic == "downlink/redirect":
+        url = urlparse(payload)
         print("Redirecting...")
-        pass
+        asyncio.create_task(connect_mqtt(url.hostname, url.port))
     elif topic == "downlink/reboot":
         print("Reboot command received!")
-        pass
     elif topic == "downlink/ping":
-        # MQTT client library automagically sends the QOS1 response
-        pass
+        pass  # MQTT client library automagically sends the QOS1 response
     elif topic == "downlink/diag":
         print("Server says:", payload)
     else:
@@ -46,14 +46,13 @@ def on_disconnect(mqtt, packet, exc=None):
 def ask_exit(*args):
     STOP.set()
 
-async def main():
-    mqtt.on_connect = on_connect
-    mqtt.on_message = on_message
-    mqtt.on_disconnect = on_disconnect
-    mqtt.set_auth_credentials("device", config.BLYNK_AUTH_TOKEN)
-
+async def connect_mqtt(host, port):
     try:
-        await mqtt.connect(config.BLYNK_MQTT_BROKER, port=8883, ssl=True,
+        await mqtt.disconnect()
+    except:
+        pass
+    try:
+        await mqtt.connect(host, port=port, ssl=True,
                            version=MQTTv50, keepalive=45)
     except MQTTConnectError as e:
         if e.args[0] in (4, 5):
@@ -61,9 +60,18 @@ async def main():
             return
         raise e
 
+async def main():
+    mqtt.on_connect = on_connect
+    mqtt.on_message = on_message
+    mqtt.on_disconnect = on_disconnect
+    mqtt.set_auth_credentials("device", config.BLYNK_AUTH_TOKEN)
+
+    await connect_mqtt(config.BLYNK_MQTT_BROKER, 8883)
+
     async def periodic():
         while True:
-            device.update()
+            if mqtt.is_connected:
+                device.update()
             await asyncio.sleep(1)
 
     asyncio.create_task(periodic())

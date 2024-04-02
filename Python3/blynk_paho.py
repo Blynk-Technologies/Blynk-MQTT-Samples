@@ -5,10 +5,12 @@
 # The software is provided "as is", without any warranties or guarantees (explicit or implied).
 # This includes no assurances about being fit for any specific purpose.
 
-from paho.mqtt.client import Client, CallbackAPIVersion
 import time
 import ssl
 import config, demo
+
+from paho.mqtt.client import Client, CallbackAPIVersion
+from urllib.parse import urlparse
 
 mqtt = Client(CallbackAPIVersion.VERSION2)
 device = demo.Device(mqtt)
@@ -28,14 +30,13 @@ def on_message(mqtt, obj, msg):
     payload = msg.payload.decode("utf-8")
     topic = msg.topic
     if topic == "downlink/redirect":
+        url = urlparse(payload)
         print("Redirecting...")
-        pass
+        mqtt.connect_async(url.hostname, url.port, 45)
     elif topic == "downlink/reboot":
         print("Reboot command received!")
-        pass
     elif topic == "downlink/ping":
-        # MQTT client library automagically sends the QOS1 response
-        pass
+        pass  # MQTT client library automagically sends the QOS1 response
     elif topic == "downlink/diag":
         print("Server says:", payload)
     else:
