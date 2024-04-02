@@ -138,9 +138,10 @@ def update_ntp_time():
     if time.time() > Jan24:
         return True
 
+    print("Getting NTP time...")
     import ntptime
     try:
-        ntptime.timeout = 3
+        ntptime.timeout = 5
         ntptime.settime()
         if time.time() > Jan24:
             print("UTC Time:", time2str(time.gmtime()))
