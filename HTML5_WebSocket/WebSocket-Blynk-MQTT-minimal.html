@@ -36,7 +36,6 @@
   }
   </style>
 
-  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
 <body>
   <h1>☁️ Blynk.Cloud MQTT Broker</h1>
@@ -65,8 +64,9 @@
       <input id="publish_btn" type="submit" value="Publish"></div>
   </form>
   <pre><samp id="log"/></pre>
-</body>
-<script>
+
+  <script type="text/javascript" src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <script type="text/javascript">
 
   /*
    * SPDX-FileCopyrightText: 2024 Volodymyr Shymanskyy for Blynk Technologies Inc.
@@ -230,5 +230,6 @@
 
   })
 
-</script>
+  </script>
+</body>
 </html>

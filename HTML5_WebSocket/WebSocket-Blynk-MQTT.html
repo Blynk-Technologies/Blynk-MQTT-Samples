@@ -36,10 +36,9 @@
   }
   </style>
 
-  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
 <body>
-  <h1> 🌞 MQTT Air Cooler/Heater HTML5 sample</h1>
+  <h1>🌞 MQTT Air Cooler/Heater HTML5 sample</h1>
   <form id="connect_form">
       <label>Device Auth Token:
         <input id="auth_token" name="auth" type="text" pattern="[a-zA-Z0-9\-_]{32}" maxlength="32" required="required" placeholder="SiIhq6yO...">
@@ -48,8 +47,9 @@
       <button id="disconnect_btn">Disconnect</button>
   </form>
   <pre><samp id="log"/></pre>
-</body>
-<script>
+
+  <script type="text/javascript" src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <script type="text/javascript">
 
   /*
    * SPDX-FileCopyrightText: 2024 Volodymyr Shymanskyy for Blynk Technologies Inc.
@@ -276,5 +276,6 @@
 
   })
 
-</script>
+  </script>
+</body>
 </html>
