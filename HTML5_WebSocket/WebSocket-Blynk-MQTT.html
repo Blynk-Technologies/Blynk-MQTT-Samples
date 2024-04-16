@@ -59,6 +59,14 @@
    * This includes no assurances about being fit for any specific purpose.
    */
 
+  let LOGO = `
+     ___  __          __
+    / _ )/ /_ _____  / /__
+   / _  / / // / _ \\/  '_/
+  /____/_/\\_, /_//_/_/\\_\\
+          /___/
+`
+
   let Logger = {
     log: function() {
       let line = Array.prototype.slice.call(arguments).map(function(arg) {
@@ -73,206 +81,200 @@
     },
   }
 
-  let client = null
+  window.addEventListener('load', (loadEvent) => {
+    let client = null
 
-  // https://github.com/mqttjs/MQTT.js#qos
-  const qos = 0
+    // https://github.com/mqttjs/MQTT.js#qos
+    const qos = 0
 
-  let LOGO = `
-      ___  __          __
-     / _ )/ /_ _____  / /__
-    / _  / / // / _ \\/  '_/
-   /____/_/\\_, /_//_/_/\\_\\
-          /___/
-`
-
-  async function onConnectClick() {
-    Logger.clear()
-    Logger.log(LOGO)
-    connect('wss://blynk.cloud:443/mqtt')
-  }
-
-  function connect(brokerUrl) {
-    const options = {
-      username: 'device',
-      password: document.querySelector('#auth_token').value,
-      keepalive: 45,
-      clean: true,
-      connectTimeout: 5000,
-      reconnectPeriod: 1000,
-      // https://github.com/mqttjs/MQTT.js#mqttclientstreambuilder-options
+    async function onConnectClick() {
+      Logger.clear()
+      Logger.log(LOGO)
+      connect('wss://blynk.cloud:443/mqtt')
     }
 
-    Logger.log(`Connecting to ${brokerUrl}`)
+    function connect(brokerUrl) {
+      const options = {
+        username: 'device',
+        password: document.querySelector('#auth_token').value,
+        keepalive: 45,
+        clean: true,
+        connectTimeout: 5000,
+        reconnectPeriod: 1000,
+        // https://github.com/mqttjs/MQTT.js#mqttclientstreambuilder-options
+      }
 
-    if (client) {
-      client.end()
-    }
-    client = mqtt.connect(brokerUrl, options)
+      Logger.log(`Connecting to ${brokerUrl}`)
 
-    // https://github.com/mqttjs/MQTT.js#event-error
-    client.on('error', (err) => {
-      console.log(err)
-      if (err.message.includes('password')) {
-        Logger.log('Invalid Auth Token')
+      if (client) {
         client.end()
-      } else {
-        Logger.log(err)
       }
-      client.end()
-    })
+      client = mqtt.connect(brokerUrl, options)
 
-    // https://github.com/mqttjs/MQTT.js#event-reconnect
-    client.on('reconnect', () => {
-      Logger.log(`Reconnecting...`)
-    })
-
-    // https://github.com/mqttjs/MQTT.js#event-connect
-    client.on('connect', () => {
-      client.subscribe('downlink/#', { qos }, (err) => {
-        if (err) {
-          Logger.log(`Subscribe error: ${err}`)
-          return
+      // https://github.com/mqttjs/MQTT.js#event-error
+      client.on('error', (err) => {
+        console.log(err)
+        if (err.message.includes('password')) {
+          Logger.log('Invalid Auth Token')
+          client.end()
+        } else {
+          Logger.log(err)
         }
-        Logger.log('Connected [secure]')
-        document.querySelector('#auth_token').disabled = true
-        document.querySelector('#connect_btn').style.display = 'none'
-        document.querySelector('#disconnect_btn').style.display = 'inline-block'
-
-        onConnection()
+        client.end()
       })
+
+      // https://github.com/mqttjs/MQTT.js#event-reconnect
+      client.on('reconnect', () => {
+        Logger.log(`Reconnecting...`)
+      })
+
+      // https://github.com/mqttjs/MQTT.js#event-connect
+      client.on('connect', () => {
+        client.subscribe('downlink/#', { qos }, (err) => {
+          if (err) {
+            Logger.log(`Subscribe error: ${err}`)
+            return
+          }
+          Logger.log('Connected [secure]')
+          document.querySelector('#auth_token').disabled = true
+          document.querySelector('#connect_btn').style.display = 'none'
+          document.querySelector('#disconnect_btn').style.display = 'inline-block'
+
+          onConnection()
+        })
+      })
+
+      client.on('close', () => {
+        Logger.log('Disconnected')
+        client = null
+        document.querySelector('#auth_token').disabled = false
+        document.querySelector('#connect_btn').style.display = 'inline-block'
+        document.querySelector('#disconnect_btn').style.display = 'none'
+      })
+
+      // https://github.com/mqttjs/MQTT.js#event-message
+      client.on('message', (topic, payload) => {
+        payload += '' // Convert Uint8Array to string
+        if (topic === 'downlink/redirect') {
+          Logger.log('Redirecting...')
+          client.endAsync().then(() => connect(payload))
+        } else if (topic === 'downlink/reboot') {
+          Logger.log('Rebooting in 3 seconds...')
+          setTimeout(() => location.reload(), 3000)
+        } else if (topic === 'downlink/ping') {
+          // MQTT client library automagically sends the QOS1 response
+        } else if (topic === 'downlink/diag') {
+          Logger.log(`Server says: ${payload}`)
+        } else {
+          handleMessage(topic, payload)
+        }
+      })
+    }
+
+    document.querySelector('#disconnect_btn').style.display = 'none'
+    Logger.log(LOGO)
+
+    document.querySelector('#connect_form').addEventListener('submit', e => {
+        e.stopPropagation()
+        e.preventDefault()
+        onConnectClick()
     })
 
-    client.on('close', () => {
-      Logger.log('Disconnected')
-      client = null
-      document.querySelector('#auth_token').disabled = false
-      document.querySelector('#connect_btn').style.display = 'inline-block'
-      document.querySelector('#disconnect_btn').style.display = 'none'
-    })
-
-    // https://github.com/mqttjs/MQTT.js#event-message
-    client.on('message', (topic, payload) => {
-      payload += '' // Convert Uint8Array to string
-      if (topic === 'downlink/redirect') {
-        Logger.log('Redirecting...')
-        client.endAsync().then(() => connect(payload))
-      } else if (topic === 'downlink/reboot') {
-        Logger.log('Rebooting in 3 seconds...')
-        setTimeout(() => location.reload(), 3000)
-      } else if (topic === 'downlink/ping') {
-        // MQTT client library automagically sends the QOS1 response
-      } else if (topic === 'downlink/diag') {
-        Logger.log(`Server says: ${payload}`)
-      } else {
-        handleMessage(topic, payload)
-      }
-    })
-  }
-
-  document.querySelector('#disconnect_btn').style.display = 'none'
-  Logger.log(LOGO)
-
-  document.querySelector('#connect_form').addEventListener('submit', e => {
-      e.stopPropagation()
+    document.querySelector('#disconnect_btn').addEventListener('click', e => {
       e.preventDefault()
-      onConnectClick()
-  })
+      if (client) {
+        client.end()
+      }
+    })
 
-  document.querySelector('#disconnect_btn').addEventListener('click', e => {
-    e.preventDefault()
-    if (client) {
-      client.end()
+
+    /*
+     * Demo application logic
+     */
+
+    let power_on = false
+    let target_temp = 23  // Target temperature, can be set from 10 to 30
+    let current_temp = 15 // Initial current temperature
+
+    function terminal_print() {
+      let line = Array.prototype.slice.call(arguments).map(function(arg) {
+        return typeof arg === 'string' ? arg : JSON.stringify(arg)
+      }).join(' ')
+      client.publish("ds/Terminal", line + "\n", { qos })
     }
-  })
 
+    function onConnection() {
+      client.publish("get/ds", "Power,Set Temperature", { qos })
+      terminal_print(LOGO)
+      terminal_print("Type \"help\" for the list of available commands")
+    }
 
-  /*
-   * Demo application logic
-   */
-
-  let power_on = false
-  let target_temp = 23  // Target temperature, can be set from 10 to 30
-  let current_temp = 15 // Initial current temperature
-
-  function terminal_print() {
-    let line = Array.prototype.slice.call(arguments).map(function(arg) {
-      return typeof arg === 'string' ? arg : JSON.stringify(arg)
-    }).join(' ')
-    client.publish("ds/Terminal", line + "\n", { qos })
-  }
-
-  function onConnection() {
-    client.publish("get/ds", "Power,Set Temperature", { qos })
-    terminal_print(LOGO)
-    terminal_print("Type \"help\" for the list of available commands")
-  }
-
-  function handleMessage(topic, payload) {
-    Logger.log(`Got ${topic}, value: ${payload}`)
-    if (topic == 'downlink/ds/Power') {
-      power_on = (parseInt(payload, 10) != 0)
-    } else if (topic == 'downlink/ds/Set Temperature') {
-      target_temp = parseFloat(payload)
-    } else if (topic == 'downlink/ds/Terminal') {
-      let cmd = payload.split(' ').filter(i => i)
-      if (cmd[0] === "set") {
-        target_temp = parseFloat(cmd[1])
-        client.publish("ds/Set Temperature", String(target_temp))
-        terminal_print(`Temperature set to ${target_temp}`);
-      } else if (cmd[0] === "on") {
-        power_on = true;
-        client.publish("ds/Power", "1");
-        terminal_print("Turned ON");
-      } else if (cmd[0] === "off") {
-          power_on = false;
-          client.publish("ds/Power", "0");
-          terminal_print("Turned OFF");
-      } else if (cmd[0] === "help" || cmd[0] === "?") {
-          terminal_print("Available commands:");
-          terminal_print("  set N    - set target temperature");
-          terminal_print("  on       - turn on");
-          terminal_print("  off      - turn off");
-      } else {
-          terminal_print(`Unknown command: ${cmd[0]}`);
+    function handleMessage(topic, payload) {
+      Logger.log(`Got ${topic}, value: ${payload}`)
+      if (topic == 'downlink/ds/Power') {
+        power_on = (parseInt(payload, 10) != 0)
+      } else if (topic == 'downlink/ds/Set Temperature') {
+        target_temp = parseFloat(payload)
+      } else if (topic == 'downlink/ds/Terminal') {
+        let cmd = payload.split(' ').filter(i => i)
+        if (cmd[0] === "set") {
+          target_temp = parseFloat(cmd[1])
+          client.publish("ds/Set Temperature", String(target_temp))
+          terminal_print(`Temperature set to ${target_temp}`);
+        } else if (cmd[0] === "on") {
+          power_on = true;
+          client.publish("ds/Power", "1");
+          terminal_print("Turned ON");
+        } else if (cmd[0] === "off") {
+            power_on = false;
+            client.publish("ds/Power", "0");
+            terminal_print("Turned OFF");
+        } else if (cmd[0] === "help" || cmd[0] === "?") {
+            terminal_print("Available commands:");
+            terminal_print("  set N    - set target temperature");
+            terminal_print("  on       - turn on");
+            terminal_print("  off      - turn off");
+        } else {
+            terminal_print(`Unknown command: ${cmd[0]}`);
+        }
       }
     }
-  }
 
-  function _update_temperature() {
-    let target = power_on ? target_temp : 10
-    let next_temp = current_temp + (target - current_temp) * 0.05
-    next_temp = Math.max(10, Math.min(next_temp, 35))
-    next_temp += (0.5 - Math.random()) * 0.3
-    current_temp = next_temp
-  }
-
-  function _update_widget_state() {
-    let state = 0
-    if (power_on == false) {
-      state = 1 // OFF
-    } else if (Math.abs(current_temp - target_temp) < 1.0) {
-      state = 2 // Idle
-    } else if (target_temp > current_temp) {
-      state = 3 // Heating
-    } else if (target_temp < current_temp) {
-      state = 4 // Cooling
+    function _update_temperature() {
+      let target = power_on ? target_temp : 10
+      let next_temp = current_temp + (target - current_temp) * 0.05
+      next_temp = Math.max(10, Math.min(next_temp, 35))
+      next_temp += (0.5 - Math.random()) * 0.3
+      current_temp = next_temp
     }
 
-    let state_colors = ["", "E4F6F7", "E6F7E4", "F7EAE4", "E4EDF7"]
-    client.publish("ds/Status", String(state))
-    client.publish("ds/Status/prop/color", state_colors[state])
-  }
+    function _update_widget_state() {
+      let state = 0
+      if (power_on == false) {
+        state = 1 // OFF
+      } else if (Math.abs(current_temp - target_temp) < 1.0) {
+        state = 2 // Idle
+      } else if (target_temp > current_temp) {
+        state = 3 // Heating
+      } else if (target_temp < current_temp) {
+        state = 4 // Cooling
+      }
 
-  setInterval(() => {
-    _update_temperature()
-    if (client && client.connected) {
-      // publish message
-      client.publish("ds/Current Temperature", String(current_temp))
-      _update_widget_state()
+      let state_colors = ["", "E4F6F7", "E6F7E4", "F7EAE4", "E4EDF7"]
+      client.publish("ds/Status", String(state))
+      client.publish("ds/Status/prop/color", state_colors[state])
     }
-  }, 1000)
 
+    setInterval(() => {
+      _update_temperature()
+      if (client && client.connected) {
+        // publish message
+        client.publish("ds/Current Temperature", String(current_temp))
+        _update_widget_state()
+      }
+    }, 1000)
+
+  })
 
 </script>
 </html>
