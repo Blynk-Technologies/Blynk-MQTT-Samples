@@ -18,6 +18,7 @@ The sample project simulates a heater device:
 
 ### Available samples
 
+- [**Node-RED**](Node-RED/README.md) - a visual programming tool that streamlines the integration of devices, APIs, and online services
 - [**Python 3**](Python3/README.md) - suitable for use on Single Board Computers (SBCs) like `Raspberry Pi` and some Industrial IoT gateways
 - [**MicroPython**](MicroPython/README.md) - a fun and easy way of creating the device firmware
 - [**Arduino / PlatformIO**](Arduino_Blynk_MQTT/README.md) - a pre-configured project that supports over 15 connectivity-enabled boards, including the `Espressif ESP32`, `Raspberry Pi Pico W`, `Nano 33 IoT`, `Nano RP2040 Connect`, `UNO R4 WiFi`, `Seeed Wio Terminal`, etc.
