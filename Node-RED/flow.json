@@ -1,0 +1,437 @@
+[
+    {
+        "id": "bba65415ce8f7b90",
+        "type": "tab",
+        "label": "BlynkMQTT",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "5b974588daca7782",
+        "type": "mqtt in",
+        "z": "bba65415ce8f7b90",
+        "name": "",
+        "topic": "downlink/ds/#",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "7389073fb818c7d9",
+        "nl": true,
+        "rap": true,
+        "rh": "2",
+        "inputs": 0,
+        "x": 310,
+        "y": 640,
+        "wires": [
+            [
+                "9dac7e2de5093871",
+                "341171d05eb35102"
+            ]
+        ]
+    },
+    {
+        "id": "d8dc07a203c81598",
+        "type": "mqtt out",
+        "z": "bba65415ce8f7b90",
+        "name": "",
+        "topic": "ds/Terminal",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "ds/Terminal",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "7389073fb818c7d9",
+        "x": 950,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "af8a1cef84c67845",
+        "type": "inject",
+        "z": "bba65415ce8f7b90",
+        "name": "start",
+        "props": [
+            {
+                "p": "payload"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "25",
+        "payloadType": "str",
+        "x": 310,
+        "y": 180,
+        "wires": [
+            [
+                "99b2a76bf6e4ac65"
+            ]
+        ]
+    },
+    {
+        "id": "99b2a76bf6e4ac65",
+        "type": "function",
+        "z": "bba65415ce8f7b90",
+        "name": "set_global_temp",
+        "func": "global.set('currentTemperature', msg.payload);\nmsg.payload = `Set curent temp to ${msg.payload}`;\nmsg.topic = 'currentTemperature';\nglobal.set('power', 1);\n\nlet LOGO = `\n      ___  __          __\n     / _ )/ /_ _____  / /__\n    / _  / / // / _ \\\\/  '_/\n   /____/_/\\\\_, /_//_/_/\\\\_\\\\\n          /___/\n`\n\nlet line = Array.prototype.slice.call(LOGO).map(function(arg) {\n      return typeof arg === 'string' ? arg : JSON.stringify(arg)\n    }).join(' ')\n\nlet logo_msg = { topic: \"logo\", payload: line + \"\\n\"}\n\nreturn [msg, logo_msg];",
+        "outputs": 2,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 580,
+        "y": 180,
+        "wires": [
+            [
+                "8e3d654d097d408b"
+            ],
+            [
+                "d0728e2246ce1e88",
+                "8e3d654d097d408b"
+            ]
+        ]
+    },
+    {
+        "id": "8b9ba9a6407cf3e3",
+        "type": "function",
+        "z": "bba65415ce8f7b90",
+        "name": "termperature_and_status",
+        "func": "let power, temperature, status, color = \"\";\nvar target_temp = global.get(\"target_temp\") || 10;\nvar current_temp = global.get(\"current_temp\") || 15;\nvar power_on = global.get(\"power\") || false;\n\nfunction next_temperature() {\n    var target = power_on ? target_temp : 10;\n    var next_temp = current_temp + (target - current_temp) * 0.05;\n    next_temp = Math.max(10, Math.min(next_temp, 35));\n    next_temp += (0.5 - Math.random()) * 0.3;\n\n    global.set(\"current_temp\", next_temp);\n\n    return {topic: \"ds/Current Temperature\", payload: next_temp};\n}\nfunction power_state() {\n    return { topic: \"ds/Power\", payload: global.get(\"power\") };\n}\n\nfunction update_status() {\n    var state = 1; // OFF\n\n    if (!power_on) {\n        state = 1; // OFF\n    } else if (Math.abs(current_temp - target_temp) < 1.0) {\n        state = 2; // Idle\n    } else if (target_temp > current_temp) {\n        state = 3; // Heating\n    } else if (target_temp < current_temp) {\n        state = 4; // Cooling\n    }\n\n    return { topic: \"ds/Status\", payload: state};\n}\n\nfunction status_property(state) {\n    var state_colors = [null, \"E4F6F7\", \"E6F7E4\", \"F7EAE4\", \"E4EDF7\"];\n    return  {topic: \"ds/Status/prop/color\", payload: state_colors[state]};\n\n}\n\ntemperature = next_temperature();\npower = power_state();\nstatus = update_status();\ncolor = status_property(status);\n\nreturn [temperature, power, status, color];",
+        "outputs": 3,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 610,
+        "y": 400,
+        "wires": [
+            [
+                "fdde80bfdfbd2eb3"
+            ],
+            [
+                "7165a70c844c9205"
+            ],
+            [
+                "e0f3eb24ca2c2158",
+                "1e62bc5d32641333"
+            ]
+        ]
+    },
+    {
+        "id": "8e3d654d097d408b",
+        "type": "debug",
+        "z": "bba65415ce8f7b90",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 930,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "cc3d8a2a8c15337a",
+        "type": "inject",
+        "z": "bba65415ce8f7b90",
+        "name": "main_loop",
+        "props": [],
+        "repeat": "1",
+        "crontab": "",
+        "once": true,
+        "onceDelay": "0.1",
+        "topic": "",
+        "x": 330,
+        "y": 400,
+        "wires": [
+            [
+                "8b9ba9a6407cf3e3"
+            ]
+        ]
+    },
+    {
+        "id": "fdde80bfdfbd2eb3",
+        "type": "mqtt out",
+        "z": "bba65415ce8f7b90",
+        "name": "",
+        "topic": "ds/Current Temperature",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "7389073fb818c7d9",
+        "x": 990,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "9dac7e2de5093871",
+        "type": "debug",
+        "z": "bba65415ce8f7b90",
+        "name": "msg",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 550,
+        "y": 680,
+        "wires": []
+    },
+    {
+        "id": "1e62bc5d32641333",
+        "type": "mqtt out",
+        "z": "bba65415ce8f7b90",
+        "name": "",
+        "topic": "ds/Status/prop/color",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "7389073fb818c7d9",
+        "x": 980,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "e0f3eb24ca2c2158",
+        "type": "mqtt out",
+        "z": "bba65415ce8f7b90",
+        "name": "",
+        "topic": "ds/Status",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "7389073fb818c7d9",
+        "x": 940,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "341171d05eb35102",
+        "type": "function",
+        "z": "bba65415ce8f7b90",
+        "name": "check_received_data",
+        "func": "var returnMsg = null;\nvar tmp = null;\n\nif (msg.topic == \"downlink/ds/Terminal\") {\n    var cmd = msg.payload.split(/\\s+/).filter(function (item) {\n        return item.trim() !== '';\n    });\n    if (cmd[0] == \"help\") {\n        var line1 = \"Available commands:\";\n        var line2 = \"  set N    - set target temperature\";\n        var line3 = \"  on       - turn on\";\n        var line4 = \"  off      - turn off\";\n\n        var formattedString = line1 + \"\\n\" + line2 + \"\\n\" + line3 + \"\\n\" + line4;\n        returnMsg = { topic: \"ds/Terminal\", payload: formattedString };\n    } else if (cmd[0] == \"on\") {\n        returnMsg = { topic: \"ds/Terminal\", payload: \"Turned ON\" };\n        global.set('power', 1);\n    } else if (cmd[0] == \"off\") {\n        global.set('power', 0);\n        returnMsg = { topic: \"ds/Terminal\", payload: \"Turned Off\" };\n    } else if (cmd[0] == \"set\") {\n        global.set(\"target_temp\", cmd[1]);\n        returnMsg = { topic: \"ds/Terminal\", payload: `Temperature set to ${cmd[1]}` };\n        tmp = { topic: \"ds/Set Temperature\", payload: cmd[1] };\n    } else {\n        returnMsg = { topic: \"ds/Terminal\", payload: \"Unknown command\" };\n    }\n} else if (msg.topic == \"downlink/ds/Power\") {\n    global.set(\"power\", msg.payload);\n} else if (msg.topic == \"downlink/ds/Set Temperature\") {\n    global.set(\"target_temp\", msg.payload);\n}\n\n// Return the messages\nreturn [tmp, returnMsg];\n",
+        "outputs": 2,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 600,
+        "y": 640,
+        "wires": [
+            [
+                "150290f9206f2bf7"
+            ],
+            [
+                "d8dc07a203c81598"
+            ]
+        ]
+    },
+    {
+        "id": "150290f9206f2bf7",
+        "type": "mqtt out",
+        "z": "bba65415ce8f7b90",
+        "name": "",
+        "topic": "ds/Set Temperature",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "7389073fb818c7d9",
+        "x": 970,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "7165a70c844c9205",
+        "type": "mqtt out",
+        "z": "bba65415ce8f7b90",
+        "name": "",
+        "topic": "ds/Power",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "7389073fb818c7d9",
+        "x": 940,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "cc94b4f955b40d16",
+        "type": "comment",
+        "z": "bba65415ce8f7b90",
+        "name": "Run only one time at start flow",
+        "info": " This setup ensures that the temperature is properly initialized at \n the beginning of the flow and that the Function node executes only \n once during the flow's initialization phase.",
+        "x": 360,
+        "y": 140,
+        "wires": []
+    },
+    {
+        "id": "1381704184ea9969",
+        "type": "comment",
+        "z": "bba65415ce8f7b90",
+        "name": "Run every 1s",
+        "info": "Inject node set to trigger every 1 second. \nConnected to a Function node get global values for power, \ncurrent temperature, and status, then setting these values in \nthe msg.payload, which is returned for downstream processing.",
+        "x": 310,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "56f4f8b9baceb858",
+        "type": "comment",
+        "z": "bba65415ce8f7b90",
+        "name": "MQTT-OUT",
+        "info": "This flow involves a node that receives input data and \nsubsequently sends it to an MQTT broker on a specific topic as a \nnode name",
+        "x": 950,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "7f8c3e6c1efdd37c",
+        "type": "comment",
+        "z": "bba65415ce8f7b90",
+        "name": "Process data from broker",
+        "info": "This script processes incoming messages to handle commands \nrelated to terminal operations, power control, and \ntemperature settings. It parses incoming commands, \nupdates global variables accordingly, and generates \nresponses for feedback.",
+        "x": 610,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "473cbca298bea9e0",
+        "type": "comment",
+        "z": "bba65415ce8f7b90",
+        "name": "Temperature and Status Update",
+        "info": "This function calculates the current temperature, power status, \ndevice status, and status color. It initializes variables for power, \ntemperature, status, and color. Then, it retrieves the target temperature, \ncurrent temperature, and power status from global context. \nBased on the power status, it calculates the next temperature. \nAfter determining the device status, it assigns the appropriate color. \nFinally, it returns an array containing objects for temperature, power, \nstatus, and color with their respective MQTT topics and payloads.",
+        "x": 630,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "70a4a9cc0bcbe3cf",
+        "type": "comment",
+        "z": "bba65415ce8f7b90",
+        "name": "MQTT-OUT",
+        "info": "This flow involves a node that receives input data and \nsubsequently sends it to an MQTT broker on a specific topic as a \nnode name",
+        "x": 950,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "d0728e2246ce1e88",
+        "type": "mqtt out",
+        "z": "bba65415ce8f7b90",
+        "name": "",
+        "topic": "ds/Terminal",
+        "qos": "0",
+        "retain": "",
+        "respTopic": "ds/Terminal",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "7389073fb818c7d9",
+        "x": 950,
+        "y": 220,
+        "wires": []
+    },
+    {
+        "id": "8b6bcb8efd52adbb",
+        "type": "comment",
+        "z": "bba65415ce8f7b90",
+        "name": "MQTT-OUT",
+        "info": "This flow involves a node that receives input data and \nsubsequently sends it to an MQTT broker on a specific topic as a \nnode name",
+        "x": 950,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "1dc12c0a8307b331",
+        "type": "comment",
+        "z": "bba65415ce8f7b90",
+        "name": "MQTT-IN",
+        "info": "This node sets up an MQTT broker to establish communication \nwith an external server. It then retrieves data from the \nserver and routes it to a function node for further \nprocessing and validation.",
+        "x": 300,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "7389073fb818c7d9",
+        "type": "mqtt-broker",
+        "name": "Blynk-cloud",
+        "broker": "blynk.cloud",
+        "port": "8883",
+        "tls": "d0fad18ad7899af8",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": true,
+        "protocolVersion": "5",
+        "keepalive": "60",
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "ds/Terminal",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "|BLYNK| Type \"help\" for the list of available commands",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "d0fad18ad7899af8",
+        "type": "tls-config",
+        "name": "",
+        "cert": "",
+        "key": "",
+        "ca": "",
+        "certname": "",
+        "keyname": "",
+        "caname": "ISRG_Root_X1.der",
+        "servername": "fra.blynk-qa.com",
+        "verifyservercert": false,
+        "alpnprotocol": ""
+    }
+]
+
