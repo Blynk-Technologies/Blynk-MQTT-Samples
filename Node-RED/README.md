@@ -31,6 +31,8 @@ Follow the instructions provided in the [official Node-RED documentation](https:
    Security tab and set your [Blynk device credentials](https://docs.blynk.io/en/getting-started/activating-devices/manual-device-activation#getting-auth-token)
    in the Password field, and "device" in Username field.
 
+![Flow Screenshot](screenshot-flow.png)
+
 ## Run the Sample Using Node-RED
 
 Deploy the flow and go to blynk.cloud for testing.
