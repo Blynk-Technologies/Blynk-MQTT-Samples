@@ -1,0 +1,78 @@
+menu "Modem config"
+
+    config GSM_UART_NUM
+        int "UART for communication with the cellular module"
+        range 0 7
+        default 1
+
+    config GSM_UART_GPIO_TX
+        int "UART TX pin"
+        default 27
+        range 1 30
+        help
+        UART Tx pin, connected to the cellular module Rx pin.
+
+    config GSM_UART_GPIO_RX
+        int "UART RX pin"
+        default 26
+        range 1 38
+        help
+        UART Rx pin, connected to the cellular module Tx pin.
+
+    config GSM_UART_BAUDRATE
+        int "UART baud rate"
+        default 115200
+        help
+        UART baudrate to comunicate with the cellular module
+
+    config GSM_BUF_SIZE
+        int "UART RX and TX buffer size"
+        default 1024
+
+    config GSM_PWR_KEY
+        int "Power Key pin"
+        default 4
+
+    config GSM_PWR_ON
+        int "Power On switch pin"
+        default 25
+
+    config GSM_AT_CMD_DEBUG
+        bool "Debug AT commands"
+        default n
+
+endmenu
+
+menu "Blynk config"
+
+    config BLYNK_TEMPLATE_ID
+        string "Blynk Template ID"
+        default "TMPxxxxxxxx"
+
+    config BLYNK_TEMPLATE_NAME
+        string "Blynk Template Name"
+        default "Device"
+
+    config BLYNK_FIRMWARE_VERSION
+        string "Blynk Firmware version"
+        default "0.0.1"
+
+    config BLYNK_FIRMWARE_TYPE
+        string
+        default BLYNK_TEMPLATE_ID
+        help
+        Firmware type identifier, used for verification during OTA.
+        Defaults to BLYNK_TEMPLATE_ID for 1 firmware : 1 product scenario
+
+    config BLYNK_SERVER
+        string "Broker hostname"
+        default "blynk.cloud"
+        help
+        The MQTT broker to connect to
+
+    config BLYNK_MQTTS_MODE
+        bool "Use Secure MQTT"
+        default y
+
+endmenu
+
