@@ -1,0 +1,19 @@
+common:
+  filter: CONFIG_FULL_LIBC_SUPPORTED
+sample:
+  description: MQTT sample app to Blynk cloud
+  name: mqtt-blynk
+tests:
+  sample.net.cloud.mqtt_blynk:
+    harness: net
+    platform_allow:
+      - sam_e70_xplained/same70q21
+      - frdm_k64f
+      - qemu_x86
+    integration_platforms:
+      - qemu_x86
+    tags:
+      - net
+      - mqtt
+      - cloud
+
