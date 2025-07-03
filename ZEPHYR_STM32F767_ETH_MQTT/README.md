@@ -182,3 +182,5 @@ This firmware:
 * [Zephyr Networking API Reference](https://docs.zephyrproject.org/latest/connectivity/networking/index.html)
 * [Zephyr Logging System](https://docs.zephyrproject.org/latest/services/logging/index.html)
 
+> Important: The mode for MCUboot must be set in the sysbuild.conf file (like SB_CONFIG_MCUBOOT_MODE_SWAP_SCRATCH etc.); if it is set elsewhere, it will be overwritten.
+
