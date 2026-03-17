@@ -1,0 +1,48 @@
+# Private config options for mqtt-blynk sample app
+
+# Copyright (c) Blynk Inc
+# SPDX-License-Identifier: Apache-2.0
+
+mainmenu "Networking mqtt-blynk sample application"
+
+config CLOUD_BLYNK_AUTH_TOKEN
+	string "Blynk cloud auth token"
+	help
+	  Auth token of your Blynk device.
+
+config CLOUD_BLYNK_TEMPLATE_ID
+    string "Blynk Template ID"
+    help
+        Product's Template ID is used to check if new Device is allowed to work with the Product's settings
+
+config CLOUD_BLYNK_FIRMWARE_TYPE
+	string "Blynk Firmware type"
+    default CLOUD_BLYNK_TEMPLATE_ID
+	help
+	  Firmware type (usually same as Template ID)
+
+config CLOUD_BLYNK_TEMPLATE_NAME
+    string "Blynk Template Name"
+    help
+        Specify your Template Name here
+
+config CLOUD_BLYNK_FIRMWARE_VERSION
+    string "Firmware version"
+    default MCUBOOT_IMGTOOL_SIGN_VERSION
+    help
+        Used for OTA purposes
+
+config CLOUD_BLYNK_SERVER_ADDR
+	string "Blynk cloud server address"
+	default "blynk.cloud"
+	help
+	  Blynk cloud server address.
+
+config CLOUD_BLYNK_SERVER_PORT
+	int "Blynk cloud server port number"
+	default 8883
+	help
+	  Blynk cloud server port number.
+
+source "Kconfig.zephyr"
+
