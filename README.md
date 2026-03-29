@@ -27,6 +27,17 @@ The sample project simulates a heater device:
 - [**Lua**](Lua_OpenWrt/README.md) - ready for deployment on `OpenWrt`-based routers and SBCs like `Onion Omega2`
 - [**HTML5 / JavaScript**](HTML5_WebSocket/README.md) - thanks to the `WebSocket` technology, this example can be used [directly from the browser](https://bit.ly/Blynk-HTML5-MQTT-Sample)
 
+### Features
+
+Examples in this repository mainly implement:
+
+- Simulate a heater device (as a demo)
+- Secure MQTT connection to Blynk.Cloud
+- Automatically reconnect on connection drop
+- Handle `downlink/redirect`, `downlink/reboot`, `downlink/ping`, `downlink/diag` properly
+- Handle `Invalid auth token` gracefully
+- OTA updates (where possible)
+
 ## Further reading
 
 - [Blynk MQTT API documentation](https://docs.blynk.io/en/blynk.cloud-mqtt-api/device-mqtt-api)
