@@ -2,7 +2,7 @@
 
 Connects an [nRF9151](https://www.nordicsemi.com/Products/nRF9151) to [Blynk](https://blynk.io) over LTE-M using MQTT.
 
-Works with either the [nRF9151 SMA DK](https://www.nordicsemi.com/Products/Development-hardware/nRF9151-SMA-DK), the [Thingy:91 X](https://www.nordicsemi.com/Products/Development-hardware/Nordic-Thingy-91-X), or the [Circuit Dojo Feather nRF9151](https://www.circuitdojo.com/products/nrf9151-feather).
+Works with either the [nRF9151 SMA DK](https://www.nordicsemi.com/Products/Development-hardware/nRF9151-SMA-DK), the [Thingy:91 X](https://www.nordicsemi.com/Products/Development-hardware/Nordic-Thingy-91-X), or the [Circuit Dojo nRF9151 Feather](https://www.circuitdojo.com/products/nrf9151-feather).
 
 Features:
 
@@ -23,10 +23,17 @@ If you want to avoid setting up the build environment you can flash one if the p
 
 ### First-time flash
 
+#### For the nRF9151 SMA DK or the Thingy:91 X:
 1. Download a pre-built binary from the build directory
 2. Install [nRF Connect for Desktop](https://www.nordicsemi.com/Products/Development-tools/nRF-Connect-for-Desktop) and open the **Programmer** app
-3. Connect your Feather via USB
-4. Do a full chip erase, then flash the binary file
+3. Connect your board via USB
+4. Add the binary file
+5. Do an Erase & write to flash device
+
+#### For the nRF9151 Feather:
+1. Get [probe-rs](https://probe.rs/docs/getting-started/installation/)
+2. flash the device with: ```probe-rs download --chip nRF9151_xxAA --binary-format hex feather_merged.hex --allow-erase-all```
+
 
 ### Provisioning credentials
 
