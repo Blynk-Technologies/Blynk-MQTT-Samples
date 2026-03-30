@@ -19,7 +19,7 @@ In your Blynk template create two datastreams:
 
 ## Using the Pre-built Binaries
 
-If you want to avoid setting up the build environment you can flash one if the pre-built binaries from the [build](build) directory.
+If you want to avoid setting up the build environment you can flash one if the pre-built binaries from the [binaries](binaries) directory.
 
 ### First-time flash
 
