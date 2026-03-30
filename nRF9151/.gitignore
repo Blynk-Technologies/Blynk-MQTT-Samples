@@ -1,0 +1,5 @@
+build
+archive
+log-*
+.zephyr-overrides.json
+.vscode
