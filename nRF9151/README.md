@@ -1,6 +1,6 @@
 # Blynk nRF9151 MQTT Sample
 
-Connects an nRF9151 to [Blynk](https://blynk.io) over LTE-M using MQTT.
+Connects an [nRF9151](https://www.nordicsemi.com/Products/nRF9151) to [Blynk](https://blynk.io) over LTE-M using MQTT.
 
 Works with either the [nRF9151 SMA DK](https://www.nordicsemi.com/Products/Development-hardware/nRF9151-SMA-DK), the [Thingy:91 X](https://www.nordicsemi.com/Products/Development-hardware/Nordic-Thingy-91-X), or the [Circuit Dojo Feather nRF9151](https://www.circuitdojo.com/products/nrf9151-feather).
 
@@ -23,7 +23,7 @@ If you want to avoid setting up the build environment you can flash one if the p
 
 ### First-time flash
 
-1. Download pre-built binary from the build directory
+1. Download a pre-built binary from the build directory
 2. Install [nRF Connect for Desktop](https://www.nordicsemi.com/Products/Development-tools/nRF-Connect-for-Desktop) and open the **Programmer** app
 3. Connect your Feather via USB
 4. Do a full chip erase, then flash the binary file
@@ -65,10 +65,9 @@ https://github.com/circuitdojo/nrf9160-feather-examples-and-drivers.git
 ```
 Hit Enter for the default branch. It will then install and initialise everything — this can take 10+ minutes.
 
-4. Clone this sample into the `nfed\samples` directory:
+4. Copy this sample into the `nfed\samples` directory:
 ```
-cd c:\nrf91\nfed\samples
-git clone https://github.com/anthony-blynk/nrf9151-feather-mqtt.git blynk_mqtt
+c:\nrf91\nfed\samples
 ```
 
 5. Set your Blynk template ID in `prj.conf`:
@@ -78,14 +77,14 @@ CONFIG_BLYNK_TEMPLATE_ID="TMPLxxxxxxxx"
 The auth token and server are entered at runtime via the shell — do not put them in `prj.conf`.
 
 6. In the Project Settings panel on the left set:
-   For the nRF9151 SMA DK:
-   - **Board:** `nrf9151dk/nrf9151/ns`
-   For the Thingy:91 X:
-   - **Board:** `thingy91x/nrf9151/ns`
-   For the nRF9151 Feather:
-   - **Board:** `circuitdojo_feather_nrf9151/nrf9151/ns`
+   
+   - **Board:** `nrf9151dk/nrf9151/ns` for the nRF9151 SMA DK
 
-   and set the Project:
+   - **Board:** `thingy91x/nrf9151/ns` for the Thingy:91 X
+
+   - **Board:** `circuitdojo_feather_nrf9151/nrf9151/ns` for the nRF9151 Feather
+
+   And set the Project:
    - **Project:** the cloned directory, e.g. `c:\nrf91\nfed\samples\blynk_mqtt`
 
 7. In Quick Actions click **Build**. The first build takes about 10 minutes; subsequent builds are faster.
