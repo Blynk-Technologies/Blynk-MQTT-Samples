@@ -11,8 +11,8 @@ The sample project simulates a heater device:
 ## Getting Started
 
 1. Sign up/Log in to your [**Blynk Account**](https://blynk.cloud)
-2. Install [**Blynk IoT App**](https://docs.blynk.io/en/downloads/blynk-apps-for-ios-and-android) for <img src="https://cdn.rawgit.com/simple-icons/simple-icons/develop/icons/googleplay.svg" width="18" height="18" /> Android or
-<img src="https://cdn.rawgit.com/simple-icons/simple-icons/develop/icons/apple.svg" width="18" height="18" /> iOS
+2. Install [**Blynk IoT App**](https://docs.blynk.io/en/downloads/blynk-apps-for-ios-and-android) for <img src="https://cdn.simpleicons.org/googleplay/363636/d1d1d1" width="18" height="18" /> Android or
+<img src="https://cdn.simpleicons.org/apple/363636/d1d1d1" width="18" height="18" /> iOS
 3. **Follow the instructions in the readme file** of the example you like the most.  
    The `MQTT Air Cooler/Heater` blueprint is compatible with various MQTT clients, developed in different programming languages.
 
