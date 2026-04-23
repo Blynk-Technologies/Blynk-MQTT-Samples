@@ -1,0 +1,19 @@
+mainmenu "Application Configuration"
+
+config BLYNK_SERVER
+    string "Default Blynk server (used as provisioning prompt default)"
+    default "blynk.cloud"
+
+config BLYNK_TEMPLATE_ID
+    string "Blynk Template ID embedded in firmware binary tag and used as provisioning default"
+
+config FIRMWARE_VERSION
+    string "Firmware version string"
+    default "0.1.0"
+
+config DEFAULT_DELAY
+    int "Update interval (minutes)"
+    default 1440
+
+rsource "src/cloud/Kconfig"
+source "Kconfig.zephyr"
